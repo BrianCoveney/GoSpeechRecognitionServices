@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f87e9f03-7aff-4b79-8495-0ee4abea1055" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/databaseservice/Dockerfile" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/databaseservice/database-service.go" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/docker-compose.yml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/transport/child.pb.go" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/transport/child.proto" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
