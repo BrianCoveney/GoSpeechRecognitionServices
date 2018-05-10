@@ -1,5 +1,5 @@
 # GoSpeechRecognitionServices
 
-''' git clone https://github.com/BrianCoveney/GoSpeechRecognitionServices.git  '''
+``` git clone https://github.com/BrianCoveney/GoSpeechRecognitionServices.git  ```
 
-''' docker-compose up '''
+``` docker-compose up ```
