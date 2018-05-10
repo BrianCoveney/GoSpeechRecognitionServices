@@ -20,6 +20,8 @@ services:
       - "NATS_URI=nats://nats:4222"
     depends_on:
       - nats
+    ports:
+      - "3001:3001"
 
 
 

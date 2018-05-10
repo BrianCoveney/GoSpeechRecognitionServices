@@ -3,16 +3,16 @@ package main
 import (
 	"fmt"
 	"time"
-	tr "github.com/BrianCoveney/GoSpeechRecognition/transport"
 	"labix.org/v2/mgo/bson"
 	"log"
 	"gopkg.in/mgo.v2"
-	"sync"
 	"github.com/nats-io/nats"
 	"os"
+	"strings"
+	"net/http"
+	"github.com/gorilla/mux"
 )
 
-//const MongoDb details
 const (
 	hosts      = "ec2-54-202-69-181.us-west-2.compute.amazonaws.com:8080"
 	database   = "speech"
@@ -22,36 +22,47 @@ const (
 )
 
 type (
-
-	// BuoyStation contains information for an individual station.
 	Child struct {
-		ID          bson.ObjectId `bson:"_id,omitempty"`
-		FirstName   string        `bson:"first_name"`
-		SecondName  string        `bson:"second_name"`
-		Email       string        `bson:"email"`
-
+		FirstName  string `bson:"first_name"`
+		SecondName string `bson:"second_name"`
+		Email      string `bson:"email"`
+		Word       string `bson:"word"`
 	}
 )
 
 var nc *nats.Conn
+var child []Child
+var err error
 
 func main() {
 
-	// NATS
+	// NATs
 	uri := os.Getenv("NATS_URI")
-
-	var err error
-
 	nc, err = nats.Connect(uri)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println("Connected to NATS " + uri)
+	// mongoDB
+	session := getMongoSession()
+	go RunQuery(session)
 
+	// http
+	server := &http.Server{
+		Addr:    ":3001",
+		Handler: initRoutes(),
+	}
+	server.ListenAndServe()
+}
 
-	// MongoDB
+func initRoutes() *mux.Router {
+	router := mux.NewRouter()
+	router.HandleFunc("/", printToScreen)
+	return router
+}
+
+func getMongoSession() *mgo.Session {
 	info := &mgo.DialInfo{
 		Addrs:    []string{hosts},
 		Timeout:  60 * time.Second,
@@ -71,57 +82,49 @@ func main() {
 	if err2 != nil {
 		panic(err2)
 		log.Println("Error %s %d", err, count)
-
 	}
-	//fmt.Println(fmt.Sprintf("Messages count: %d", count))
-
-	// Create a wait group to manage the goroutines.
-	var waitGroup sync.WaitGroup
-
-	// Perform 10 concurrent queries against the databaseservice.
-	waitGroup.Add(1)
-	for query := 0; query < 1; query++ {
-		go RunQuery(query, &waitGroup, session)
-	}
-
-	// Wait for all the queries to complete.
-	waitGroup.Wait()
-	log.Println("All Queries Completed")
+	return session
 }
 
-func RunQuery(query int, waitGroup *sync.WaitGroup, mongoSession *mgo.Session) {
-	// Decrement the wait group count so the program knows this
-	// has been completed once the goroutine exits.
-	defer waitGroup.Done()
 
-	// Request a socket connection from the session to process our query.
-	// Close the session when the goroutine exits and put the connection back
-	// into the pool.
+func RunQuery(mongoSession *mgo.Session) {
 	sessionCopy := mongoSession.Copy()
-	defer sessionCopy.Close()
 
-	// Get a collection to execute the query against.
+	// Get our collection
 	collection := sessionCopy.DB(database).C(collection)
 
-	//log.Printf("RunQuery : %d : Executing\n", query)
-
-	// Retrieve the list of stations.
-	//var child []Child
-
-	child := tr.ChildUser{}
-	err := collection.Find(nil).All(&child)
+	// Run query on collection to find all. Our struct holds the result.
+	err := collection.Find(bson.M{}).All(&child)
 	if err != nil {
 		log.Printf("RunQuery : ERROR : %s\n", err)
 		return
 	}
 
+	// Loop through our struct result
+	for i, c := range child {
+		fmt.Printf("Child %d: %+v\n", i, c)
+	}
+}
 
-	//err := collection.Find(nil).All(&child)
-	//if err != nil {
-	//	log.Printf("RunQuery : ERROR : %s\n", err)
-	//	return
-	//}
 
-	fmt.Println("Phone", child)
-	//log.Printf("RunQuery : %d : Count[%d]\n", query, len(child))
+func printToScreen(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()       // parse arguments, you have to call this by yourself
+	fmt.Println(r.Form) // print form information in server side
+	fmt.Println("path", r.URL.Path)
+	fmt.Println("scheme", r.URL.Scheme)
+	fmt.Println(r.Form["url_long"])
+	for k, v := range r.Form {
+		fmt.Println("key:", k)
+		fmt.Println("val:", strings.Join(v, ""))
+	}
+
+	// Print all child detail to the screen, available at http://localhost:3001/
+	for i, c := range child {
+		fmt.Fprintf(w, "Child %d: %+v\n", i, c.String())
+	}
+}
+
+// Our toString for formatting
+func (this Child) String() string {
+	return this.FirstName + " | " + this.SecondName + " | " + this.Email + " | " + this.Word
 }
