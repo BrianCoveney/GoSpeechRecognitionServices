@@ -1,0 +1,8 @@
+syntax = "proto3";
+package Transport;
+
+message ChildUser {
+    string fname = 1;
+    string sname = 2;
+    string email = 3;
+}
