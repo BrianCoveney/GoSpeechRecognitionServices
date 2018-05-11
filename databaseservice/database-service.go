@@ -6,8 +6,6 @@ import (
 	"labix.org/v2/mgo/bson"
 	"log"
 	"gopkg.in/mgo.v2"
-	"github.com/nats-io/nats"
-	"os"
 	"strings"
 	"net/http"
 	"github.com/gorilla/mux"
@@ -31,25 +29,9 @@ type (
 	}
 )
 
-var nc *nats.Conn
-var children []Child
 var err error
 
 func main() {
-
-	// NATs
-	uri := os.Getenv("NATS_URI")
-	nc, err = nats.Connect(uri)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// mongoDB
-	session := getMongoSession()
-	go RunQuery(session)
-
-	// http
 	server := &http.Server{
 		Addr:    ":3001",
 		Handler: initRoutes(),
@@ -60,6 +42,7 @@ func main() {
 func initRoutes() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/", printToScreen)
+	router.HandleFunc("/{email}", findChildByEmail).Methods("GET")
 	return router
 }
 
@@ -87,23 +70,40 @@ func getMongoSession() *mgo.Session {
 	return session
 }
 
-func RunQuery(mongoSession *mgo.Session) {
-	sessionCopy := mongoSession.Copy()
+func findAllChildren() []Child {
+	sessionCopy := getMongoSession().Copy()
 
 	// Get our collection
 	collection := sessionCopy.DB(database).C(collection)
 
+	var children []Child
 	// Run query on collection to find all. Our struct holds the result.
 	err := collection.Find(bson.M{}).All(&children)
 	if err != nil {
-		log.Printf("RunQuery : ERROR : %s\n", err)
-		return
+		log.Printf("findAllChildren : ERROR : %s\n", err)
+	}
+	return children
+}
+
+func findChildByEmail(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	child := Child{Email: vars["email"]}
+
+	sessionCopy := getMongoSession().Copy()
+	collection := sessionCopy.DB(database).C(collection)
+
+	result := Child{}
+	err = collection.Find(bson.M{"email": child.Email}).One(&result)
+	if err != nil {
+		log.Printf("findChildByEmail : ERROR : %s\n", err)
 	}
 
-	// Loop through our struct result
-	for i, child := range children {
-		fmt.Printf("Child %d: %+v\n", i, child)
-	}
+	var c []Child
+	c = append(c, result)
+
+	t, _ := template.ParseFiles("view.html")
+	t.Execute(w, c)
 }
 
 func printToScreen(w http.ResponseWriter, r *http.Request) {
@@ -121,6 +121,7 @@ func printToScreen(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("view.html")
 
 	// Print all children's details to the screen. This will be available at http://localhost:3001/
+	var children = findAllChildren()
 	var c []Child
 	for _, child := range children {
 		c = append(c, child)
