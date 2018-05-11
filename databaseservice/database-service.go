@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"time"
 	"labix.org/v2/mgo/bson"
 	"log"
 	"gopkg.in/mgo.v2"
-	"strings"
 	"net/http"
 	"github.com/gorilla/mux"
 	"html/template"
@@ -41,7 +39,7 @@ func main() {
 
 func initRoutes() *mux.Router {
 	router := mux.NewRouter()
-	router.HandleFunc("/", printToScreen)
+	router.HandleFunc("/", findAllChildren).Methods("GET")
 	router.HandleFunc("/{email}", findChildByEmail).Methods("GET")
 	return router
 }
@@ -70,22 +68,36 @@ func getMongoSession() *mgo.Session {
 	return session
 }
 
-func findAllChildren() []Child {
+func findAllChildren(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	sessionCopy := getMongoSession().Copy()
 
 	// Get our collection
 	collection := sessionCopy.DB(database).C(collection)
 
+	// Run our query
 	var children []Child
-	// Run query on collection to find all. Our struct holds the result.
 	err := collection.Find(bson.M{}).All(&children)
 	if err != nil {
 		log.Printf("findAllChildren : ERROR : %s\n", err)
 	}
-	return children
+
+	// Append the bson result 'children' to our struct 'c'
+	var c []Child
+	for _, child := range children {
+		c = append(c, child)
+	}
+
+	t, _ := template.ParseFiles("view.html")
+
+	// Available at:  http://localhost:3001/
+	t.Execute(w, c)
+
 }
 
 func findChildByEmail(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	vars := mux.Vars(r)
 
 	child := Child{Email: vars["email"]}
@@ -93,38 +105,18 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 	sessionCopy := getMongoSession().Copy()
 	collection := sessionCopy.DB(database).C(collection)
 
-	result := Child{}
-	err = collection.Find(bson.M{"email": child.Email}).One(&result)
+	childResult := Child{}
+	err = collection.Find(bson.M{"email": child.Email}).One(&childResult)
 	if err != nil {
 		log.Printf("findChildByEmail : ERROR : %s\n", err)
 	}
 
+	// Append the bson childResult 'childResult' to our struct 'c'
 	var c []Child
-	c = append(c, result)
+	c = append(c, childResult)
 
 	t, _ := template.ParseFiles("view.html")
-	t.Execute(w, c)
-}
 
-func printToScreen(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	fmt.Println(r.Form)
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Scheme)
-	fmt.Println(r.Form["url_long"])
-	for k, v := range r.Form {
-		fmt.Println("key:", k)
-		fmt.Println("val:", strings.Join(v, ""))
-	}
-
-	// Generate HTML template
-	t, _ := template.ParseFiles("view.html")
-
-	// Print all children's details to the screen. This will be available at http://localhost:3001/
-	var children = findAllChildren()
-	var c []Child
-	for _, child := range children {
-		c = append(c, child)
-	}
+	// Available at, e.g:  http://localhost:3001/der@email.com
 	t.Execute(w, c)
 }
