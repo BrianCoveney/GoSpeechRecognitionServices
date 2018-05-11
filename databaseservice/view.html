@@ -1,0 +1,64 @@
+<html>
+<head>
+    <title>Child Details</title>
+</head>
+<body>
+    <headder id="headder">
+        <div id = headder_content>
+            <h1>Speech Therapists</h1>
+            <h3>List of Patient's Details</h3>
+        </div>
+    </headder>
+
+
+    <!-- Using a Table to hold the contents retreived from the DB -->
+    <table id="children_table">{{range $y, $x := . }}
+        <tr>
+            <td><b>{{ $x.FirstName }}</b></td>
+            <td>{{ $x.SecondName }}</td>
+            <td>{{ $x.Email }}</td>
+            <td>{{ $x.Word }}</td>
+        </tr>{{end}}
+    </table>
+
+
+    <!-- Styles for the Website -->
+    <style>
+        body{
+            margin: 0px;
+        }
+
+        #headder_content {
+            color: red;
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            width: 100%;
+            height: 100px;
+            padding-top: 40px;
+            padding-left: 20px;
+            padding-bottom: 20px;
+        }
+
+        #children_table {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px;
+        }
+
+        #children_table td, #children_table th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #children_table tr:nth-child(even){background-color: #f2f2f2;}
+
+        #children_table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</body>
+</html>

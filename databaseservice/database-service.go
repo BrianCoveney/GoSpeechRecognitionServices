@@ -11,6 +11,7 @@ import (
 	"strings"
 	"net/http"
 	"github.com/gorilla/mux"
+	"html/template"
 )
 
 const (
@@ -31,7 +32,7 @@ type (
 )
 
 var nc *nats.Conn
-var child []Child
+var children []Child
 var err error
 
 func main() {
@@ -86,7 +87,6 @@ func getMongoSession() *mgo.Session {
 	return session
 }
 
-
 func RunQuery(mongoSession *mgo.Session) {
 	sessionCopy := mongoSession.Copy()
 
@@ -94,22 +94,21 @@ func RunQuery(mongoSession *mgo.Session) {
 	collection := sessionCopy.DB(database).C(collection)
 
 	// Run query on collection to find all. Our struct holds the result.
-	err := collection.Find(bson.M{}).All(&child)
+	err := collection.Find(bson.M{}).All(&children)
 	if err != nil {
 		log.Printf("RunQuery : ERROR : %s\n", err)
 		return
 	}
 
 	// Loop through our struct result
-	for i, c := range child {
-		fmt.Printf("Child %d: %+v\n", i, c)
+	for i, child := range children {
+		fmt.Printf("Child %d: %+v\n", i, child)
 	}
 }
 
-
 func printToScreen(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()       // parse arguments, you have to call this by yourself
-	fmt.Println(r.Form) // print form information in server side
+	r.ParseForm()
+	fmt.Println(r.Form)
 	fmt.Println("path", r.URL.Path)
 	fmt.Println("scheme", r.URL.Scheme)
 	fmt.Println(r.Form["url_long"])
@@ -118,13 +117,13 @@ func printToScreen(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("val:", strings.Join(v, ""))
 	}
 
-	// Print all child detail to the screen, available at http://localhost:3001/
-	for i, c := range child {
-		fmt.Fprintf(w, "Child %d: %+v\n", i, c.String())
-	}
-}
+	// Generate HTML template
+	t, _ := template.ParseFiles("view.html")
 
-// Our toString for formatting
-func (this Child) String() string {
-	return this.FirstName + " | " + this.SecondName + " | " + this.Email + " | " + this.Word
+	// Print all children's details to the screen. This will be available at http://localhost:3001/
+	var c []Child
+	for _, child := range children {
+		c = append(c, child)
+	}
+	t.Execute(w, c)
 }
