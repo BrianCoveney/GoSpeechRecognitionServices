@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"html/template"
+	"fmt"
 )
 
 const (
@@ -20,10 +21,11 @@ const (
 
 type (
 	Child struct {
-		FirstName  string `bson:"first_name"`
-		SecondName string `bson:"second_name"`
-		Email      string `bson:"email"`
-		Word       string `bson:"word"`
+		FirstName  string         `bson:"first_name"`
+		SecondName string         `bson:"second_name"`
+		Email      string         `bson:"email"`
+		Word       string         `bson:"word"`
+		Words      map[string]int `bson:"map_of_gliding_words"`
 	}
 )
 
@@ -86,6 +88,7 @@ func findAllChildren(w http.ResponseWriter, r *http.Request) {
 	var c []Child
 	for _, child := range children {
 		c = append(c, child)
+		fmt.Printf("Child: %+v\n", child)
 	}
 
 	t, _ := template.ParseFiles("view.html")
@@ -120,3 +123,4 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 	// Available at, e.g:  http://localhost:3001/der@email.com
 	t.Execute(w, c)
 }
+

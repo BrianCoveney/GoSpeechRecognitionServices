@@ -11,13 +11,18 @@
     </headder>
 
 
-    <!-- Using a Table to hold the contents retreived from the DB -->
+    <!-- Using a Table to hold the contents retrieved from the DB -->
     <table id="children_table">{{range $y, $x := . }}
         <tr>
             <td><b>{{ $x.FirstName }}</b></td>
             <td>{{ $x.SecondName }}</td>
             <td>{{ $x.Email }}</td>
             <td>{{ $x.Word }}</td>
+            <td>
+                {{ range $key, $value := $x.Words }}
+                    <li><strong>{{ $key }}</strong>: {{ $value }}</li>
+                {{ end }}
+            </td>
         </tr>{{end}}
     </table>
 

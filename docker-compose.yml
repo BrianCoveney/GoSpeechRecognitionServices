@@ -1,25 +1,10 @@
 version: "3"
 
 services:
-  nats:
-    image: 'nats:latest'
-    entrypoint: "/gnatsd -DV"
-    expose:
-      - "4222"
-    ports:
-      - "8222:8222"
-    hostname: nats-server
-
   database-service:
     build:
       context: "./databaseservice"
     entrypoint: /go/database-service
-    links:
-      - nats
-    environment:
-      - "NATS_URI=nats://nats:4222"
-    depends_on:
-      - nats
     ports:
       - "3001:3001"
 
