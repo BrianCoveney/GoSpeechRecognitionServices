@@ -33,7 +33,7 @@ var err error
 
 func main() {
 	server := &http.Server{
-		Addr:    ":3001",
+		Addr:    ":80",
 		Handler: initRoutes(),
 	}
 	server.ListenAndServe()

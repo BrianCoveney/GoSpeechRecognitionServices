@@ -12,8 +12,15 @@
 
 
     <!-- Using a Table to hold the contents retrieved from the DB -->
-    <table id="children_table">{{range $y, $x := . }}
+    <table id="children_table">
         <tr>
+            <th>First Name</th>
+            <th>Second Name</th>
+            <th>Email</th>
+            <th>Last Word</th>
+            <th>Gliding Words</th>
+        </tr>
+        <tr>{{range $y, $x := . }}
             <td><b>{{ $x.FirstName }}</b></td>
             <td>{{ $x.SecondName }}</td>
             <td>{{ $x.Email }}</td>

@@ -8,5 +8,5 @@ COPY . .
 RUN go get -d -v ./...
 RUN go build database-service.go
 
-EXPOSE 3001
+EXPOSE 80
 ENTRYPOINT ["/go/database-service"]
