@@ -1,4 +1,4 @@
-# GoSpeechRecognitionServices
+# SpeechRecognition Golang Frontend
 
 ``` git clone https://github.com/BrianCoveney/GoSpeechRecognitionServices.git  ```
 
