@@ -6,7 +6,7 @@ WORKDIR /go
 COPY . .
 
 RUN go get -d -v ./...
-RUN go build database-service.go
+RUN go build frontend-service.go
 
 EXPOSE 80
-ENTRYPOINT ["/go/database-service"]
+ENTRYPOINT ["/go/frontend-service"]

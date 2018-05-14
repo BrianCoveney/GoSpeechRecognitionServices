@@ -1,44 +1,12 @@
 version: "3"
 
 services:
-  proxy:
-    image: jwilder/nginx-proxy
-    container_name: speech-nginx-proxy
-    environment:
-      - VIRTUAL_HOST=speech.local
-    network_mode: "bridge"
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    ports:
-      - "80:80"
-
   database-service:
     build:
-      context: "./databaseservice"
-    entrypoint: /go/database-service
-    depends_on:
-      - db
-      - proxy
-    links:
-      - db
-    network_mode: "bridge"
-    environment:
-      VIRTUAL_HOST: speech.local
-
-  db:
-    image: mongo:3.3
-    container_name: child-db
-    network_mode: "bridge"
+      context: "./frontendservice"
+    entrypoint: /go/frontend-service
     ports:
-      - "27017:27017"
-    volumes:
-      - ./backup:/backup:rw
-
-  dockerhub-service:
-    build:
-        context: "./databaseservice"
-    entrypoint: /go/database-service
-    image: bricov/go-speech  # goes to our DockerHub registry
+      - "80:80"
 
 
 
