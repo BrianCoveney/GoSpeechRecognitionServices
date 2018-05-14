@@ -122,7 +122,7 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 	// for generating HTML output safe against code injection.
 	t, _ := template.ParseFiles("view.html")
 
-	// Available at, e.g http://localhost:3001/grace@email.com  - This is for developing locally. Also,
+	// Available at, e.g http://speech.local/grace@email.com  - This is for developing locally. Also,
 	// Available at, e.g http://94.156.189.70/grace@email.com   - This is the ip of my server
 	t.Execute(w, c)
 }
