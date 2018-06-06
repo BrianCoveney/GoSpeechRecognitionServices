@@ -1,13 +1,20 @@
 version: "3"
 
 services:
-  database-service:
+  frontend:
     build:
       context: "./frontendservice"
-    entrypoint: /go/frontend-service
+    image: bricov/speech_frontend
+    links:
+      - mongodb-repository
     ports:
       - "80:80"
-
+    environment:
+      DATASTORE_ADDR: datastore:27017
+  mongodb-repository:
+    image: bricov/speech_repository
+    ports:
+      - 27017:27017
 
 
 

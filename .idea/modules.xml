@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/GoSpeechRecognitionServices.iml" filepath="$PROJECT_DIR$/.idea/GoSpeechRecognitionServices.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/SpeechRecognitionGolangFrontend.iml" filepath="$PROJECT_DIR$/.idea/SpeechRecognitionGolangFrontend.iml" />
     </modules>
   </component>
 </project>

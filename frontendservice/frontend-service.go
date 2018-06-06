@@ -13,10 +13,10 @@ import (
 
 // Class constants that contain information about of DB
 const (
-	hosts      = "ec2-54-202-69-181.us-west-2.compute.amazonaws.com:8080"
+	hosts      = "mongodb-repository:27017"
 	database   = "speech"
-	username   = "speechUser"
-	password   = "bossdog12"
+	username   = ""
+	password   = ""
 	collection = "children"
 )
 // main() method that starts our http server
@@ -74,12 +74,15 @@ func findAllChildren(w http.ResponseWriter, r *http.Request) {
 	sessionCopy := getMongoSession().Copy()
 	// Get our collection
 	collection := sessionCopy.DB(database).C(collection)
-	// Run our query
+
+	// Create an array of Child
 	var children []Child
+	// Run our query
 	err := collection.Find(bson.M{}).All(&children)
 	if err != nil {
 		log.Printf("findAllChildren : ERROR : %s\n", err)
 	}
+
 	// Append the bson result 'children' to our struct 'c'
 	var c []Child
 	for _, child := range children {
@@ -87,10 +90,9 @@ func findAllChildren(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Child: %+v\n", child)
 	}
 
+	// Generate HTML output
 	t, _ := template.ParseFiles("view.html")
-	// Available at:  http://localhost:3001/
 	t.Execute(w, c)
-
 }
 
 func findChildByEmail(w http.ResponseWriter, r *http.Request) {
@@ -101,7 +103,6 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 
 	// This utilises our Child struct with the Email field set to the result of the mux.Vars request
 	child := Child{ Email: vars["email"] }
-
 	sessionCopy := getMongoSession().Copy()
 	collection := sessionCopy.DB(database).C(collection)
 
@@ -122,8 +123,8 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 	// for generating HTML output safe against code injection.
 	t, _ := template.ParseFiles("view.html")
 
-	// Available at, e.g http://speech.local/grace@email.com  - This is for developing locally. Also,
-	// Available at, e.g http://94.156.189.70/grace@email.com   - This is the ip of my server
+	// Available at, e.g http://speech.local/grace@email.com  (This is for developing locally)
+	// Available at, e.g http://94.156.189.70/grace@email.com (This is the ip of my server)r
 	t.Execute(w, c)
 }
 
