@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f87e9f03-7aff-4b79-8495-0ee4abea1055" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/GoSpeechRecognitionServices.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontendservice/frontend-service.go" beforeDir="false" afterPath="$PROJECT_DIR$/frontendservice/frontend-service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deploy.sh" beforeDir="false" afterPath="$PROJECT_DIR$/deploy.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -38,7 +34,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="deploy.sh" pinned="false" current-in-tab="false">
+      <file leaf-file-name="deploy.sh" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/deploy.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="153">
@@ -56,7 +52,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="frontend-service.yaml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="frontend-service.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/frontend-service.yaml">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="323">
@@ -105,11 +101,11 @@
         <option value="$PROJECT_DIR$/mongodb-webspeech-service.yaml" />
         <option value="$PROJECT_DIR$/mongodb-webspeech-deployment.yaml" />
         <option value="$PROJECT_DIR$/frontend-service-deployment.yaml" />
-        <option value="$PROJECT_DIR$/deploy.sh" />
         <option value="$PROJECT_DIR$/docker-compose.yml" />
         <option value="$PROJECT_DIR$/frontend-deployment.yaml" />
         <option value="$PROJECT_DIR$/frontend-service.yaml" />
         <option value="$PROJECT_DIR$/frontendservice/frontend-service.go" />
+        <option value="$PROJECT_DIR$/deploy.sh" />
       </list>
     </option>
   </component>
@@ -203,6 +199,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-3" y="-1" width="1926" height="1058" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50039905" side_tool="true" weight="0.5961228" />
@@ -510,10 +507,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/deploy.sh">
+    <entry file="file://$PROJECT_DIR$/frontend-service.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+        <state relative-caret-position="323">
+          <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
         </state>
       </provider>
     </entry>
@@ -524,10 +521,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend-service.yaml">
+    <entry file="file://$PROJECT_DIR$/deploy.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
+        <state relative-caret-position="153">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
         </state>
       </provider>
     </entry>
