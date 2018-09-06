@@ -1,21 +1,16 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.13.0 (HEAD)
-  creationTimestamp: null
   labels:
-    io.kompose.service: frontend
+    app: frontend
   name: frontend
 spec:
   replicas: 1
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
-        io.kompose.service: frontend
+        app: frontend
     spec:
       containers:
       - env:

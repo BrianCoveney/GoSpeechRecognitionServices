@@ -113,7 +113,7 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 	// We use the mgo MongoDB driver, to search for the child by their email address. The result is stored in childResult
 	var err = collection.Find(bson.M{"email": child.Email}).One(&childResult)
 	if err != nil {
-		log.Printf("findChildByEmail : ERROR : %s\n", err)
+		log.Printf("findChildByEmail : ERROR :d %s\n", err)
 	}
 
 	// Append the bson childResult 'childResult' to our struct 'c'
