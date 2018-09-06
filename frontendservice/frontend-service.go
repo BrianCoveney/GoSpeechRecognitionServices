@@ -14,7 +14,6 @@ import (
 // Class constants that contain information about of DB
 const (
 	hosts      = "mongodb-repository:27017"
-	//hosts      = "ec2-54-202-69-181.us-west-2.compute.amazonaws.com:8080"
 	database   = "speech"
 	username   = ""
 	password   = ""
