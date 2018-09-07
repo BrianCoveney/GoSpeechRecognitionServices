@@ -29,8 +29,7 @@ func main() {
 	// We use Let's Encrypt service to verify our domain and issue us a certificate
 	m := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist("www.speech.briancoveney.com"),
-		Cache:      autocert.DirCache("/home/letsencrypt/"),
+		HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
 	}
 
 	// We create the secure http.server using tls
@@ -41,7 +40,10 @@ func main() {
 			GetCertificate: m.GetCertificate,
 		},
 	}
-	server.ListenAndServe()
+	err := server.ListenAndServeTLS("", "")
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
 
 // initRoutes() method is handler.
