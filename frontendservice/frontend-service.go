@@ -30,7 +30,7 @@ func main() {
 	m := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist("www.speech.briancoveney.com"),
-		Cache:      autocert.DirCache("certs"),
+		Cache:      autocert.DirCache("/home/brian/certs/"),
 	}
 
 	// We create the secure http.server using tls
