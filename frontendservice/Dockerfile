@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.9.3
 
 MAINTAINER brian.coveney
 
