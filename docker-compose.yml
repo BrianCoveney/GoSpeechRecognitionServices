@@ -8,7 +8,7 @@ services:
     links:
       - mongodb-repository
     ports:
-      - "80:80"
+      - "443:443"
     environment:
       DATASTORE_ADDR: datastore:27017
   mongodb-repository:
