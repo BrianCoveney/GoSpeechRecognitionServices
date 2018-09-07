@@ -1,16 +1,14 @@
 package main
 
 import (
-	"crypto/tls"
-	"fmt"
-	"github.com/gorilla/mux"
-	"golang.org/x/crypto/acme/autocert"
-	"gopkg.in/mgo.v2"
-	"html/template"
+	"time"
 	"labix.org/v2/mgo/bson"
 	"log"
+	"gopkg.in/mgo.v2"
 	"net/http"
-	"time"
+	"github.com/gorilla/mux"
+	"html/template"
+	"fmt"
 )
 
 // Class constants that contain information about of DB
@@ -22,30 +20,13 @@ const (
 	password   = ""
 	collection = "children"
 )
-
 // main() method that starts our http server
 func main() {
-
-	// We use Let's Encrypt service to verify our domain and issue us a certificate
-	m := autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist("www.speech.briancoveney.com"),
-		Cache:      autocert.DirCache("/home/brian/certs/"),
-	}
-
-	// We create the secure http.server using tls
 	server := &http.Server{
-		Addr:    ":443",
+		Addr:    ":80",
 		Handler: initRoutes(),
-		TLSConfig: &tls.Config{
-			GetCertificate: m.GetCertificate,
-		},
 	}
-	err := server.ListenAndServeTLS("", "")
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
-
+	server.ListenAndServe()
 }
 
 // initRoutes() method is handler.
