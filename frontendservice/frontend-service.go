@@ -1,29 +1,45 @@
 package main
 
 import (
-	"time"
+	"crypto/tls"
+	"fmt"
+	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
+	"gopkg.in/mgo.v2"
+	"html/template"
 	"labix.org/v2/mgo/bson"
 	"log"
-	"gopkg.in/mgo.v2"
 	"net/http"
-	"github.com/gorilla/mux"
-	"html/template"
-	"fmt"
+	"time"
 )
 
 // Class constants that contain information about of DB
 const (
-	hosts      = "mongodb-repository:27017"
+	//hostsProd      = "mongodb-repository:27017"
+	hostsDev   = "94.156.189.70:27017"
 	database   = "speech"
 	username   = ""
 	password   = ""
 	collection = "children"
 )
+
 // main() method that starts our http server
 func main() {
+
+	// We use Let's Encrypt service to verify our domain and issue us a certificate
+	m := autocert.Manager{
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist("www.speech.briancoveney.com"),
+		Cache:      autocert.DirCache("/home/letsencrypt/"),
+	}
+
+	// We create the secure http.server using tls
 	server := &http.Server{
 		Addr:    ":80",
 		Handler: initRoutes(),
+		TLSConfig: &tls.Config{
+			GetCertificate: m.GetCertificate,
+		},
 	}
 	server.ListenAndServe()
 }
@@ -43,7 +59,7 @@ func initRoutes() *mux.Router {
 // Returns a mongoDB session using the constants as needed. This is used by findAllChildren() and findChildByEmail()
 func getMongoSession() *mgo.Session {
 	info := &mgo.DialInfo{
-		Addrs:    []string{hosts},
+		Addrs:    []string{hostsDev},
 		Timeout:  60 * time.Second,
 		Database: database,
 		Username: username,
