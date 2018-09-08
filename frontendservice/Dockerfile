@@ -8,5 +8,5 @@ COPY . .
 RUN go get -d -v ./...
 RUN go build frontend-service.go
 
-EXPOSE 80
+EXPOSE 443
 ENTRYPOINT ["/go/frontend-service"]
