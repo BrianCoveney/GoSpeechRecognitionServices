@@ -30,8 +30,8 @@ func main() {
 	}
 
 	// We used the certbot client on our server to issue our certificates
-	err := server.ListenAndServeTLS("/etc/letsencrypt/live/speech.briancoveney.com/fullchain.pem",
-		"/etc/letsencrypt/live/speech.briancoveney.com/privkey.pem")
+	err := server.ListenAndServeTLS("/home/brian/certs/fullchain.pem",
+		"/home/brian/certs/privkey.pem")
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
