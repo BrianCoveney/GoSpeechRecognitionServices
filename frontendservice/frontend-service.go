@@ -25,7 +25,7 @@ const (
 func main() {
 
 	server := &http.Server{
-		Addr:    ":80",
+		Addr:    ":443",
 		Handler: initRoutes(),
 	}
 
