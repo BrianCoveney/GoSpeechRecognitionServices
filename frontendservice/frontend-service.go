@@ -34,6 +34,7 @@ func main() {
 
 	server := &http.Server{
 		Addr: ":https",
+		Handler: initRoutes(),
 		TLSConfig: &tls.Config{
 			GetCertificate: certManager.GetCertificate,
 		},
