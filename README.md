@@ -11,7 +11,7 @@ Accessible locally:
 http<nolink>://speech.local/
 
 Accessible online:
-[http://speech.briancoveney.com/](http://speech.briancoveney.com/)
+[https://speech.briancoveney.com/](https://speech.briancoveney.com/)
 
 
 ## Running Kubernetes Locally via Minikube
