@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
 	"gopkg.in/mgo.v2"
 	"html/template"
 	"labix.org/v2/mgo/bson"
@@ -24,17 +26,22 @@ const (
 // main() method that starts our http server
 func main() {
 
-	server := &http.Server{
-		Addr:    ":443",
-		Handler: initRoutes(),
+	certManager := autocert.Manager{
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
+		Cache:      autocert.DirCache("certs"),
 	}
 
-	// We used the certbot client on our server to issue our certificates
-	err := server.ListenAndServeTLS("/home/brian/certs/fullchain.pem",
-		"/home/brian/certs/privkey.pem")
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+	server := &http.Server{
+		Addr: ":https",
+		TLSConfig: &tls.Config{
+			GetCertificate: certManager.GetCertificate,
+		},
 	}
+
+	go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+
+	log.Fatal(server.ListenAndServeTLS("", ""))
 
 }
 
