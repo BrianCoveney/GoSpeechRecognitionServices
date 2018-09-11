@@ -3,9 +3,9 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/globalsign/mgo"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/acme/autocert"
-	"gopkg.in/mgo.v2"
 	"html/template"
 	"labix.org/v2/mgo/bson"
 	"log"
@@ -13,7 +13,6 @@ import (
 	"time"
 )
 
-// Class constants that contain information about of DB
 const (
 	//hostsProd      = "mongodb-repository:27017"
 	hostsDev   = "94.156.189.70:27017"
@@ -21,28 +20,39 @@ const (
 	username   = ""
 	password   = ""
 	collection = "children"
+
+	dev 	   = true
 )
 
 // main() method that starts our http server
 func main() {
 
-	certManager := autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
-		Cache:      autocert.DirCache("certs"),
+	if dev {
+		server := &http.Server{
+			Addr:    ":80",
+			Handler: initRoutes(),
+		}
+		server.ListenAndServe()
+	} else {
+
+		certManager := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
+			Cache:      autocert.DirCache("certs"),
+		}
+
+		server := &http.Server{
+			Addr:    ":https",
+			Handler: initRoutes(),
+			TLSConfig: &tls.Config{
+				GetCertificate: certManager.GetCertificate,
+			},
+		}
+
+		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+
+		log.Fatal(server.ListenAndServeTLS("", ""))
 	}
-
-	server := &http.Server{
-		Addr: ":https",
-		Handler: initRoutes(),
-		TLSConfig: &tls.Config{
-			GetCertificate: certManager.GetCertificate,
-		},
-	}
-
-	go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
-
-	log.Fatal(server.ListenAndServeTLS("", ""))
 
 }
 
@@ -55,6 +65,7 @@ func initRoutes() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/", findAllChildren).Methods("GET")
 	router.HandleFunc("/{email}", findChildByEmail).Methods("GET")
+	router.PathPrefix("/")
 	return router
 }
 
