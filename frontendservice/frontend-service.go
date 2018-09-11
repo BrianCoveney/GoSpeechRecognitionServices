@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	// Database details
 	//hostsProd      = "mongodb-repository:27017"
 	hostsDev   = "94.156.189.70:27017"
 	database   = "speech"
@@ -22,13 +23,15 @@ const (
 	password   = ""
 	collection = "children"
 
-	dev 	   = true
+	// Development / Production flag
+	dev  = true
+
+	// Static content directory
+	layoutDir = "static/layouts"
 )
 
-var LayoutDir string = "static/layouts"
-
 func layoutFiles() []string {
-	files, err := filepath.Glob(LayoutDir + "/*.gohtml")
+	files, err := filepath.Glob(layoutDir + "/*.gohtml")
 	if err != nil {
 		panic(err)
 	}
@@ -59,12 +62,10 @@ func main() {
 				GetCertificate: certManager.GetCertificate,
 			},
 		}
-
 		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
 
 		log.Fatal(server.ListenAndServeTLS("", ""))
 	}
-
 }
 
 // initRoutes() method is handler.
@@ -78,8 +79,6 @@ func initRoutes() *mux.Router {
 	router.HandleFunc("/{email}", findChildByEmail).Methods("GET")
 	return router
 }
-
-
 
 // Returns a mongoDB session using the constants as needed. This is used by findAllChildren() and findChildByEmail()
 func getMongoSession() *mgo.Session {
@@ -144,7 +143,7 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// This utilises our Child struct with the Email field set to the result of the mux.Vars request
-	child := Child{ Email: vars["email"] }
+	child := Child{Email: vars["email"]}
 	sessionCopy := getMongoSession().Copy()
 	collection := sessionCopy.DB(database).C(collection)
 
