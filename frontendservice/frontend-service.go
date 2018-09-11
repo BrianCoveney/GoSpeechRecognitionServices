@@ -10,6 +10,7 @@ import (
 	"labix.org/v2/mgo/bson"
 	"log"
 	"net/http"
+	"path/filepath"
 	"time"
 )
 
@@ -23,6 +24,16 @@ const (
 
 	dev 	   = true
 )
+
+var LayoutDir string = "static/layouts"
+
+func layoutFiles() []string {
+	files, err := filepath.Glob(LayoutDir + "/*.gohtml")
+	if err != nil {
+		panic(err)
+	}
+	return files
+}
 
 // main() method that starts our http server
 func main() {
@@ -65,9 +76,10 @@ func initRoutes() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/", findAllChildren).Methods("GET")
 	router.HandleFunc("/{email}", findChildByEmail).Methods("GET")
-	router.PathPrefix("/")
 	return router
 }
+
+
 
 // Returns a mongoDB session using the constants as needed. This is used by findAllChildren() and findChildByEmail()
 func getMongoSession() *mgo.Session {
@@ -120,8 +132,9 @@ func findAllChildren(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate HTML output
-	t, _ := template.ParseFiles("view.html")
-	t.Execute(w, c)
+	t, _ := template.ParseFiles(layoutFiles()...)
+	t.ExecuteTemplate(w, "view", c)
+
 }
 
 func findChildByEmail(w http.ResponseWriter, r *http.Request) {
@@ -150,9 +163,9 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 
 	// We use package template (html/template) that implements data-driven templates
 	// for generating HTML output safe against code injection.
-	t, _ := template.ParseFiles("view.html")
+	t, _ := template.ParseFiles(layoutFiles()...)
 
 	// Available at, e.g http://speech.local/grace@email.com  (This is for developing locally)
 	// Available at, e.g http://94.156.189.70/grace@email.com (This is the ip of my server)r
-	t.Execute(w, c)
+	t.ExecuteTemplate(w, "view", c)
 }
