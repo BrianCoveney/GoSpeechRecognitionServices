@@ -15,14 +15,14 @@ import (
 )
 
 const (
-	//hostsProd      = "mongodb-repository:27017"
-	hostsDev   = "94.156.189.70:27017"
+	host       = "mongodb-repository:27017"
+	//host 	   = "94.156.189.70:27017"
 	database   = "speech"
 	username   = ""
 	password   = ""
 	collection = "children"
 
-	dev 	   = true
+	dev 	   = false
 
 	layoutDir  = "static/layouts"
 )
@@ -78,7 +78,7 @@ func initRoutes() *mux.Router {
 // Returns a mongoDB session using the constants as needed. This is used by findAllChildren() and findChildByEmail()
 func getMongoSession() *mgo.Session {
 	info := &mgo.DialInfo{
-		Addrs:    []string{hostsDev},
+		Addrs:    []string{host},
 		Timeout:  60 * time.Second,
 		Database: database,
 		Username: username,
