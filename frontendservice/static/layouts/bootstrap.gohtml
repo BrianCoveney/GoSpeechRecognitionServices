@@ -1,0 +1,27 @@
+{{define "bootstrap"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Child Details</title>
+    <link href="//stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="container-fluid">
+    <!-- Our content will go here. -->
+{{template "yield" .}}
+</div>
+
+<!-- jquery & Bootstrap JS -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="//stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.min.jss"></script>
+
+<!-- Icons -->
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script>
+    feather.replace()
+</script>
+
+</body>
+</html>
+{{end}}

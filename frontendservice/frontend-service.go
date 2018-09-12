@@ -6,8 +6,8 @@ import (
 	"github.com/globalsign/mgo"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/acme/autocert"
+	"gopkg.in/mgo.v2/bson"
 	"html/template"
-	"labix.org/v2/mgo/bson"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	// Database details
 	//hostsProd      = "mongodb-repository:27017"
 	hostsDev   = "94.156.189.70:27017"
 	database   = "speech"
@@ -23,20 +22,12 @@ const (
 	password   = ""
 	collection = "children"
 
-	// Development / Production flag
-	dev  = true
+	dev 	   = true
 
-	// Static content directory
-	layoutDir = "static/layouts"
+	layoutDir  = "static/layouts"
 )
 
-func layoutFiles() []string {
-	files, err := filepath.Glob(layoutDir + "/*.gohtml")
-	if err != nil {
-		panic(err)
-	}
-	return files
-}
+
 
 // main() method that starts our http server
 func main() {
@@ -62,10 +53,12 @@ func main() {
 				GetCertificate: certManager.GetCertificate,
 			},
 		}
+
 		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
 
 		log.Fatal(server.ListenAndServeTLS("", ""))
 	}
+
 }
 
 // initRoutes() method is handler.
@@ -79,6 +72,8 @@ func initRoutes() *mux.Router {
 	router.HandleFunc("/{email}", findChildByEmail).Methods("GET")
 	return router
 }
+
+
 
 // Returns a mongoDB session using the constants as needed. This is used by findAllChildren() and findChildByEmail()
 func getMongoSession() *mgo.Session {
@@ -131,8 +126,12 @@ func findAllChildren(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate HTML output
-	t, _ := template.ParseFiles(layoutFiles()...)
-	t.ExecuteTemplate(w, "view", c)
+	files := append(layoutFiles(), "static/index.gohtml")
+	t, err := template.ParseFiles(files...)
+	if err != nil {
+		panic(err)
+	}
+	t.ExecuteTemplate(w, "bootstrap", c)
 
 }
 
@@ -143,7 +142,7 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// This utilises our Child struct with the Email field set to the result of the mux.Vars request
-	child := Child{Email: vars["email"]}
+	child := Child{ Email: vars["email"] }
 	sessionCopy := getMongoSession().Copy()
 	collection := sessionCopy.DB(database).C(collection)
 
@@ -162,9 +161,21 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 
 	// We use package template (html/template) that implements data-driven templates
 	// for generating HTML output safe against code injection.
-	t, _ := template.ParseFiles(layoutFiles()...)
+	files := append(layoutFiles(), "static/index.gohtml")
+	t, err := template.ParseFiles(files...)
+	if err != nil {
+		panic(err)
+	}
 
 	// Available at, e.g http://speech.local/grace@email.com  (This is for developing locally)
 	// Available at, e.g http://94.156.189.70/grace@email.com (This is the ip of my server)r
-	t.ExecuteTemplate(w, "view", c)
+	t.ExecuteTemplate(w, "bootstrap", c)
+}
+
+func layoutFiles() []string {
+	files, err := filepath.Glob(layoutDir + "/*.gohtml")
+	if err != nil {
+		panic(err)
+	}
+	return files
 }
