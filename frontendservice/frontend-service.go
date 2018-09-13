@@ -15,19 +15,19 @@ import (
 )
 
 const (
-	host       = "mongodb-repository:27017"
-	//host 	   = "94.156.189.70:27017"
+	//host       = "mongodb-repository:27017"
+	host       = "94.156.189.70:27017"
 	database   = "speech"
 	username   = ""
 	password   = ""
 	collection = "children"
 
-	dev 	   = false
-
-	layoutDir  = "static/layouts"
+	dev = true
 )
 
-
+var layoutDir = "static/layouts"
+var index *template.Template
+var contact *template.Template
 
 // main() method that starts our http server
 func main() {
@@ -68,12 +68,16 @@ func initRoutes() *mux.Router {
 	// We create a router that we can pass the request through so that the vars will be added to the context.
 	// router.HandleFunc register URL paths and their handlers.
 	router := mux.NewRouter()
-	router.HandleFunc("/", findAllChildren).Methods("GET")
-	router.HandleFunc("/{email}", findChildByEmail).Methods("GET")
+	router.HandleFunc("/", indexHandler).Methods("GET")
+	router.HandleFunc("/contact", contactHandler).Methods("GET")
+	router.HandleFunc("/{email}", searchHandler).Methods("GET")
+
+	fs := http.FileServer(http.Dir("./static"))
+	router.PathPrefix("/images/").Handler(fs)
+	router.PathPrefix("/css/").Handler(fs)
+
 	return router
 }
-
-
 
 // Returns a mongoDB session using the constants as needed. This is used by findAllChildren() and findChildByEmail()
 func getMongoSession() *mgo.Session {
@@ -102,9 +106,7 @@ type (
 	}
 )
 
-func findAllChildren(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close() //  Close the response body when finished with it
-
+func findAllChildren() []Child {
 	// Here our sessionCopy is set equal to the session returned from our getMongoSession() method
 	sessionCopy := getMongoSession().Copy()
 	// Get our collection
@@ -124,25 +126,17 @@ func findAllChildren(w http.ResponseWriter, r *http.Request) {
 		c = append(c, child)
 		fmt.Printf("Child: %+v\n", child)
 	}
-
-	// Generate HTML output
-	files := append(layoutFiles(), "static/index.gohtml")
-	t, err := template.ParseFiles(files...)
-	if err != nil {
-		panic(err)
-	}
-	t.ExecuteTemplate(w, "bootstrap", c)
-
+	return c
 }
 
-func findChildByEmail(w http.ResponseWriter, r *http.Request) {
+func findChildByEmail(r *http.Request) []Child {
 	defer r.Body.Close()
 
 	// Here mux.Vars(r) creates a map of route variables. See initRoutes() router.HandleFunc("/{email}", findChildByEmail)
 	vars := mux.Vars(r)
 
 	// This utilises our Child struct with the Email field set to the result of the mux.Vars request
-	child := Child{ Email: vars["email"] }
+	child := Child{Email: vars["email"]}
 	sessionCopy := getMongoSession().Copy()
 	collection := sessionCopy.DB(database).C(collection)
 
@@ -159,17 +153,43 @@ func findChildByEmail(w http.ResponseWriter, r *http.Request) {
 	var c []Child
 	c = append(c, childResult)
 
-	// We use package template (html/template) that implements data-driven templates
-	// for generating HTML output safe against code injection.
+	return c
+}
+
+// Handler "/"
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	files := append(layoutFiles(), "static/index.gohtml")
-	t, err := template.ParseFiles(files...)
+	index, err := template.ParseFiles(files...)
 	if err != nil {
 		panic(err)
 	}
+	var c = findAllChildren()
+	index.ExecuteTemplate(w, "bootstrap", c)
+}
 
-	// Available at, e.g http://speech.local/grace@email.com  (This is for developing locally)
-	// Available at, e.g http://94.156.189.70/grace@email.com (This is the ip of my server)r
-	t.ExecuteTemplate(w, "bootstrap", c)
+// Handler for path: "/{email}"
+func searchHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	files := append(layoutFiles(), "static/index.gohtml")
+	index, err := template.ParseFiles(files...)
+	if err != nil {
+		panic(err)
+	}
+	var c = findChildByEmail(r)
+	index.ExecuteTemplate(w, "bootstrap", c)
+}
+
+// Handler for "/contact"
+func contactHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	files := append(layoutFiles(), "static/contact.gohtml")
+	index, err := template.ParseFiles(files...)
+	if err != nil {
+		panic(err)
+	}
+	var c = findAllChildren()
+	index.ExecuteTemplate(w, "bootstrap", c)
 }
 
 func layoutFiles() []string {
