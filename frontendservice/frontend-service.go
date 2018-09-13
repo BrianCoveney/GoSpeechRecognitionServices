@@ -14,14 +14,14 @@ import (
 )
 
 const (
-	host       = "mongodb-repository:27017"
-	//host       = "94.156.189.70:27017"
+	//host       = "mongodb-repository:27017"
+	host       = "94.156.189.70:27017"
 	database   = "speech"
 	username   = ""
 	password   = ""
 	collection = "children"
 
-	dev = false
+	dev = true
 )
 
 var index *views.View
