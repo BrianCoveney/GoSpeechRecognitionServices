@@ -1,4 +1,19 @@
 .card {
     margin: auto;
-    margin-bottom: 50px;
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+
+.bg-info, .btn {
+    background-color: #0056b3!important;
+}
+
+.sidebar {
+    margin-top: 20px;
+    min-height: calc(100vh - 50px);
+}
+
+.card-container {
+    display: flex;
+    flex-direction: row;
 }
