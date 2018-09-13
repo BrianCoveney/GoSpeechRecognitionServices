@@ -173,7 +173,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 // Handler for "/contact"
 func contactHandler(w http.ResponseWriter, r *http.Request) {
 	var c = findAllChildren()
-	index.Render(w, c)
+	contact.Render(w, c)
 }
 
 
