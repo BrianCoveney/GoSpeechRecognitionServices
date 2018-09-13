@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/globalsign/mgo"
@@ -47,14 +46,12 @@ func main() {
 		server := &http.Server{
 			Addr:    ":https",
 			Handler: initRoutes(),
-			TLSConfig: &tls.Config{
-				GetCertificate: certManager.GetCertificate,
-			},
 		}
 
 		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
 
-		log.Fatal(server.ListenAndServeTLS("", ""))
+		log.Fatal(server.ListenAndServeTLS("/home/brian/certs/fullchain.pem",
+			"/home/brian/certs/privkey.pem"))
 	}
 
 }
