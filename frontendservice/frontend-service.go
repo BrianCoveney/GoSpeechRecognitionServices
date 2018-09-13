@@ -3,14 +3,13 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/globalsign/mgo"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/acme/autocert"
 	"gopkg.in/mgo.v2/bson"
-	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
 	"time"
 )
 
@@ -25,9 +24,8 @@ const (
 	dev = true
 )
 
-var layoutDir = "static/layouts"
-var index *template.Template
-var contact *template.Template
+var index *views.View
+var contact *views.View
 
 // main() method that starts our http server
 func main() {
@@ -68,6 +66,10 @@ func initRoutes() *mux.Router {
 	// We create a router that we can pass the request through so that the vars will be added to the context.
 	// router.HandleFunc register URL paths and their handlers.
 	router := mux.NewRouter()
+
+	index = views.NewView("bootstrap", "static/index.gohtml")
+	contact = views.NewView("bootstrap", "static/contact.gohtml")
+
 	router.HandleFunc("/", indexHandler).Methods("GET")
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchHandler).Methods("GET")
@@ -158,44 +160,20 @@ func findChildByEmail(r *http.Request) []Child {
 
 // Handler "/"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	files := append(layoutFiles(), "static/index.gohtml")
-	index, err := template.ParseFiles(files...)
-	if err != nil {
-		panic(err)
-	}
 	var c = findAllChildren()
-	index.ExecuteTemplate(w, "bootstrap", c)
+	index.Render(w, c)
 }
 
 // Handler for path: "/{email}"
 func searchHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	files := append(layoutFiles(), "static/index.gohtml")
-	index, err := template.ParseFiles(files...)
-	if err != nil {
-		panic(err)
-	}
 	var c = findChildByEmail(r)
-	index.ExecuteTemplate(w, "bootstrap", c)
+	index.Render(w, c)
 }
 
 // Handler for "/contact"
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	files := append(layoutFiles(), "static/contact.gohtml")
-	index, err := template.ParseFiles(files...)
-	if err != nil {
-		panic(err)
-	}
 	var c = findAllChildren()
-	index.ExecuteTemplate(w, "bootstrap", c)
+	index.Render(w, c)
 }
 
-func layoutFiles() []string {
-	files, err := filepath.Glob(layoutDir + "/*.gohtml")
-	if err != nil {
-		panic(err)
-	}
-	return files
-}
+
