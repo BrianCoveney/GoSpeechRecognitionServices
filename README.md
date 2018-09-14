@@ -10,8 +10,11 @@ Edit ```/etc/hosts``` file, and add the following:
 Accessible locally:
 http<nolink>://speech.local/
 
+~Accessible online (temporarily unavailable):~
+[~https://speech.briancoveney.com/~](https://speech.briancoveney.com/)
+
 Accessible online:
-[https://speech.briancoveney.com/](https://speech.briancoveney.com/)
+[http://speech.briancoveney.com/](http://speech.briancoveney.com/)
 
 
 ## Running Kubernetes Locally via Minikube
