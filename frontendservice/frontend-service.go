@@ -40,7 +40,7 @@ func main() {
 
 		certManager := autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
+			HostPolicy: autocert.HostWhitelist("speechtherapy.briancoveney.com"),
 			Cache:      autocert.DirCache("certs"),
 		}
 
