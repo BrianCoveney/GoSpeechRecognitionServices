@@ -56,7 +56,6 @@ func main() {
 
 		log.Fatal(server.ListenAndServeTLS("", ""))
 	}
-
 }
 
 // initRoutes() method is handler.
