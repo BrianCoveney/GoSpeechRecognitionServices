@@ -1,12 +1,10 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/globalsign/mgo"
 	"github.com/gorilla/mux"
-	"golang.org/x/crypto/acme/autocert"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"net/http"
@@ -21,7 +19,7 @@ const (
 	password   = ""
 	collection = "children"
 
-	dev = false
+	dev = true
 )
 
 var index *views.View
@@ -36,25 +34,6 @@ func main() {
 			Handler: initRoutes(),
 		}
 		server.ListenAndServe()
-	} else {
-
-		certManager := autocert.Manager{
-			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist("speechtherapy.briancoveney.com"),
-			Cache:      autocert.DirCache("certs"),
-		}
-
-		server := &http.Server{
-			Addr:    ":https",
-			Handler: initRoutes(),
-			TLSConfig: &tls.Config{
-				GetCertificate: certManager.GetCertificate,
-			},
-		}
-
-		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
-
-		log.Fatal(server.ListenAndServeTLS("", ""))
 	}
 }
 
