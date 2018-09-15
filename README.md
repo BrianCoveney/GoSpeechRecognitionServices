@@ -16,6 +16,28 @@ http<nolink>://speech.local/
 Accessible online:
 [http://speech.briancoveney.com/](http://speech.briancoveney.com/)
 
+## Making changes in code / web template, and updating image locally:
+
+Remove image:
+```docker rmi -f bricov/speech_frontend```
+
+Make your changes and push to DockerHub:
+```docker push bricov/speech_frontend```
+
+Push code change to GitHub.
+
+## Updating server:
+
+Pull code change from GitHub.
+
+Stop all docker containers:  
+``` docker stop $(docker ps -q) ```
+
+Remove Docker Images, Containers, and Volumes:  
+``` docker rmi -f <image_name> / docker rm <container_name> / docker system prune / docker volume prune  ```
+
+Start the containers in the background and leave them running:
+``` docker-compose up -d ```
 
 ## Running Kubernetes Locally via Minikube
 
@@ -28,21 +50,14 @@ Find the frontend service with the exposed port of 30008:
 e.g:  
 
 | default | frontend | http<span></span>://192.168.99.100:30008 |
-  
+
+Update image:    
+``` kubectl set image deployment frontend frontend=bricov/speech_frontend:latest ```
 
 Open in browser:  
 ``` http://192.168.99.100:30008 ```
 
-## Making changes and updating image
-
-Find local docker image:  
-``` docker images ```
-
-Remove image:  
-``` docker rmi -f bricov/speech_frontend ```
-
-Make your changes and push to DockerHub:  
-``` docker push bricov/speech_frontend ```
-
-Update image:    
+Updating image after a change:    
 ``` kubectl set image deployment frontend frontend=bricov/speech_frontend:latest ```
+
+
