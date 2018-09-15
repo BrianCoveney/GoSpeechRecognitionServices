@@ -19,10 +19,10 @@ Accessible online:
 ## Making changes in code / web template, and updating image locally:
 
 Remove image:
-```docker rmi -f bricov/speech_frontend```
+``` docker rmi -f bricov/speech_frontend ```
 
 Make your changes and push to DockerHub:
-```docker push bricov/speech_frontend```
+``` docker push bricov/speech_frontend ```
 
 Push code change to GitHub.
 
