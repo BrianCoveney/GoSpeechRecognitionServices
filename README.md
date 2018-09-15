@@ -10,7 +10,7 @@ Edit ```/etc/hosts``` file, and add the following:
 Accessible locally:
 http<nolink>://speech.local/
 
-~Accessible online~ (temporarily unavailable):
+~Accessible online~ (htpps temporarily unavailable):
 [~https://speech.briancoveney.com/~](https://speech.briancoveney.com/)
 
 Accessible online:
