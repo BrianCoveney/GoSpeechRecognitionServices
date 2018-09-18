@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/globalsign/mgo"
 	"github.com/gorilla/mux"
@@ -10,6 +11,11 @@ import (
 	"net/http"
 	"time"
 )
+
+var index *views.View
+var contact *views.View
+
+var dao = ChildDAO{}
 
 const (
 	host       = "mongodb-repository:27017"
@@ -22,8 +28,16 @@ const (
 	dev = true
 )
 
-var index *views.View
-var contact *views.View
+// This struct contains the type of collection we will be receiving from the DB, i.e bson strings and a map
+type (
+	Child struct {
+		FirstName  string         `bson:"first_name"`
+		SecondName string         `bson:"second_name"`
+		Email      string         `bson:"email"`
+		Word       string         `bson:"word"`
+		Words      map[string]int `bson:"map_of_gliding_words"`
+	}
+)
 
 // main() method that starts our http server
 func main() {
@@ -48,7 +62,7 @@ func initRoutes() *mux.Router {
 	index = views.NewView("bootstrap", "static/index.gohtml")
 	contact = views.NewView("bootstrap", "static/contact.gohtml")
 
-	router.HandleFunc("/", indexHandler).Methods("GET")
+	router.HandleFunc("/", AllChildrenEndpoint).Methods("GET")
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchHandler).Methods("GET")
 
@@ -75,16 +89,15 @@ func getMongoSession() *mgo.Session {
 	return session
 }
 
-// This struct contains the type of collection we will be receiving from the DB, i.e bson strings and a map
-type (
-	Child struct {
-		FirstName  string         `bson:"first_name"`
-		SecondName string         `bson:"second_name"`
-		Email      string         `bson:"email"`
-		Word       string         `bson:"word"`
-		Words      map[string]int `bson:"map_of_gliding_words"`
+// GET list of children
+func AllChildrenEndpoint(w http.ResponseWriter, r *http.Request) {
+	children, err := dao.FindAll()
+	if err != nil {
+		log.Printf("findAllChildren : ERROR : %s\n", err)
 	}
-)
+	index.Render(w, children)
+}
+
 
 func findAllChildren() []Child {
 	// Here our sessionCopy is set equal to the session returned from our getMongoSession() method
@@ -138,19 +151,19 @@ func findChildByEmail(r *http.Request) []Child {
 
 // Handler "/"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	var c = findAllChildren()
+	c := findAllChildren()
 	index.Render(w, c)
 }
 
 // Handler for path: "/{email}"
 func searchHandler(w http.ResponseWriter, r *http.Request) {
-	var c = findChildByEmail(r)
+	c := findChildByEmail(r)
 	index.Render(w, c)
 }
 
 // Handler for "/contact"
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	var c = findAllChildren()
+	c := findAllChildren()
 	contact.Render(w, c)
 }
 
