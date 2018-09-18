@@ -2,8 +2,8 @@ package dao
 
 import (
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/models"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"labix.org/v2/mgo"
+	"labix.org/v2/mgo/bson"
 	"log"
 )
 
@@ -45,5 +45,6 @@ func (c *ChildDAO) FindByEmail(email string) (Child, error) {
 func (c *ChildDAO) FindByName(name string) (Child, error) {
 	var child Child
 	err := db.C(COLLECTION).Find(bson.M{"first_name": name}).One(&child)
+	log.Print("CHILD", child)
 	return child, err
 }
