@@ -1,43 +1,32 @@
 package main
 
 import (
-	"fmt"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
-	"github.com/globalsign/mgo"
 	"github.com/gorilla/mux"
-	"gopkg.in/mgo.v2/bson"
+	. "github.com/mlabouardy/movies-restapi/config"
 	"log"
 	"net/http"
-	"time"
 )
 
 var index *views.View
 var contact *views.View
 
 var dao = ChildDAO{}
+var config = Config{}
 
 const (
-	host       = "mongodb-repository:27017"
-	//host       = "94.156.189.70:27017"
-	database   = "speech"
-	username   = ""
-	password   = ""
-	collection = "children"
-
 	dev = true
 )
 
-// This struct contains the type of collection we will be receiving from the DB, i.e bson strings and a map
-type (
-	Child struct {
-		FirstName  string         `bson:"first_name"`
-		SecondName string         `bson:"second_name"`
-		Email      string         `bson:"email"`
-		Word       string         `bson:"word"`
-		Words      map[string]int `bson:"map_of_gliding_words"`
-	}
-)
+// Parse the configuration file 'config.toml', and establish a connection to DB
+func init() {
+	config.Read()
+
+	dao.Server = config.Server
+	dao.Database = config.Database
+	dao.Connect()
+}
 
 // main() method that starts our http server
 func main() {
@@ -62,7 +51,7 @@ func initRoutes() *mux.Router {
 	index = views.NewView("bootstrap", "static/index.gohtml")
 	contact = views.NewView("bootstrap", "static/contact.gohtml")
 
-	router.HandleFunc("/", AllChildrenEndpoint).Methods("GET")
+	router.HandleFunc("/", indexHandler).Methods("GET")
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchHandler).Methods("GET")
 
@@ -73,98 +62,27 @@ func initRoutes() *mux.Router {
 	return router
 }
 
-// Returns a mongoDB session using the constants as needed. This is used by findAllChildren() and findChildByEmail()
-func getMongoSession() *mgo.Session {
-	info := &mgo.DialInfo{
-		Addrs:    []string{host},
-		Timeout:  60 * time.Second,
-		Database: database,
-		Username: username,
-		Password: password,
-	}
-	session, err1 := mgo.DialWithInfo(info)
-	if err1 != nil {
-		panic(err1)
-	}
-	return session
-}
-
-// GET list of children
-func AllChildrenEndpoint(w http.ResponseWriter, r *http.Request) {
-	children, err := dao.FindAll()
-	if err != nil {
-		log.Printf("findAllChildren : ERROR : %s\n", err)
-	}
-	index.Render(w, children)
-}
-
-
-func findAllChildren() []Child {
-	// Here our sessionCopy is set equal to the session returned from our getMongoSession() method
-	sessionCopy := getMongoSession().Copy()
-	// Get our collection
-	collection := sessionCopy.DB(database).C(collection)
-
-	// Create an array of Child
-	var children []Child
-	// Run our query
-	err := collection.Find(bson.M{}).All(&children)
-	if err != nil {
-		log.Printf("findAllChildren : ERROR : %s\n", err)
-	}
-
-	// Append the bson result 'children' to our struct 'c'
-	var c []Child
-	for _, child := range children {
-		c = append(c, child)
-		fmt.Printf("Child: %+v\n", child)
-	}
-	return c
-}
-
-func findChildByEmail(r *http.Request) []Child {
-	defer r.Body.Close()
-
-	// Here mux.Vars(r) creates a map of route variables. See initRoutes() router.HandleFunc("/{email}", findChildByEmail)
-	vars := mux.Vars(r)
-
-	// This utilises our Child struct with the Email field set to the result of the mux.Vars request
-	child := Child{Email: vars["email"]}
-	sessionCopy := getMongoSession().Copy()
-	collection := sessionCopy.DB(database).C(collection)
-
-	// Create an empty Child struct
-	childResult := Child{}
-
-	// We use the mgo MongoDB driver, to search for the child by their email address. The result is stored in childResult
-	var err = collection.Find(bson.M{"email": child.Email}).One(&childResult)
-	if err != nil {
-		log.Printf("findChildByEmail : ERROR :d %s\n", err)
-	}
-
-	// Append the bson childResult 'childResult' to our struct 'c'
-	var c []Child
-	c = append(c, childResult)
-
-	return c
-}
-
 // Handler "/"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	c := findAllChildren()
+	c, err := dao.FindAll()
+	if err != nil {
+		log.Printf("indexHandler : ERROR :d %s\n", err)
+	}
 	index.Render(w, c)
 }
 
 // Handler for path: "/{email}"
 func searchHandler(w http.ResponseWriter, r *http.Request) {
-	c := findChildByEmail(r)
+	vars := mux.Vars(r)
+	c, err := dao.FindByEmail(vars["email"])
+	if err != nil {
+		log.Printf("findChildByEmail : ERROR :d %s\n", err)
+	}
 	index.Render(w, c)
 }
 
 // Handler for "/contact"
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	c := findAllChildren()
+	c, _ := dao.FindAll()
 	contact.Render(w, c)
 }
-
-

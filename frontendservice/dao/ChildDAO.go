@@ -8,8 +8,8 @@ import (
 )
 
 type ChildDAO struct {
-	Server  	string
-	Database	string
+	Server   string
+	Database string
 }
 
 var db *mgo.Database
@@ -34,4 +34,15 @@ func (c *ChildDAO) FindAll() ([]Child, error) {
 	return child, err
 }
 
+// TODO Find child by email address
+func (c *ChildDAO) FindByEmail(email string) ([]Child, error) {
+	child := Child{}
+	err := db.C(COLLECTION).Find(bson.M{"email": email}).One(&child)
+	if err != nil {
+		log.Printf("FindByEmail : ERROR :d %s\n", err)
+	}
 
+	var ch []Child
+	ch = append(ch, child)
+	return ch, err
+}
