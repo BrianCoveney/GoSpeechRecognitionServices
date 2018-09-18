@@ -5,7 +5,6 @@ import (
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
 	. "github.com/mlabouardy/movies-restapi/config"
-	"log"
 	"net/http"
 )
 
@@ -64,20 +63,14 @@ func initRoutes() *mux.Router {
 
 // Handler "/"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	c, err := dao.FindAll()
-	if err != nil {
-		log.Printf("indexHandler : ERROR :d %s\n", err)
-	}
+	c, _ := dao.FindAll()
 	index.Render(w, c)
 }
 
 // Handler for path: "/{email}"
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	c, err := dao.FindByEmail(vars["email"])
-	if err != nil {
-		log.Printf("findChildByEmail : ERROR :d %s\n", err)
-	}
+	c, _ := dao.FindByEmail(vars["email"])
 	index.Render(w, c)
 }
 

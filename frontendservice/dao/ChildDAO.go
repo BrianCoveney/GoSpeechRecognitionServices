@@ -34,15 +34,12 @@ func (c *ChildDAO) FindAll() ([]Child, error) {
 	return child, err
 }
 
-// TODO Find child by email address
-func (c *ChildDAO) FindByEmail(email string) ([]Child, error) {
+// Find child by email
+func (c *ChildDAO) FindByEmail(email string) (Child, error) {
 	child := Child{}
-	err := db.C(COLLECTION).Find(bson.M{"email": email}).One(&child)
+	err := db.C(COLLECTION).Find(bson.M{"email": child.Email}).One(&child)
 	if err != nil {
 		log.Printf("FindByEmail : ERROR :d %s\n", err)
 	}
-
-	var ch []Child
-	ch = append(ch, child)
-	return ch, err
+	return child, err
 }
