@@ -18,7 +18,7 @@ const (
 	dev = true
 )
 
-func getConfigs() []string {
+func readConfigs() []string {
 	myKeysFile, err := ioutil.ReadFile("configs")
 	if err != nil {
 		fmt.Println("There was a problem with the configs")
@@ -28,7 +28,7 @@ func getConfigs() []string {
 
 // Parse the configuration file 'configs.toml', and establish a connection to DB
 func init() {
-	config := getConfigs()
+	config := readConfigs()
 	server, database := config[0], config[1]
 
 	dao.Server = server
@@ -62,6 +62,8 @@ func initRoutes() *mux.Router {
 	router.HandleFunc("/", indexHandler).Methods("GET")
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchHandler).Methods("GET")
+	router.HandleFunc("/{name}", searchNameHandler).Methods("GET")
+
 
 	fs := http.FileServer(http.Dir("./static"))
 	router.PathPrefix("/images/").Handler(fs)
@@ -76,6 +78,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	index.Render(w, c)
 }
 
+// Handler for "/contact"
+func contactHandler(w http.ResponseWriter, r *http.Request) {
+	c, _ := dao.FindAll()
+	contact.Render(w, c)
+}
+
 // Handler for path: "/{email}"
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -83,8 +91,9 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	index.Render(w, c)
 }
 
-// Handler for "/contact"
-func contactHandler(w http.ResponseWriter, r *http.Request) {
-	c, _ := dao.FindAll()
-	contact.Render(w, c)
+// Handler for path: "/{email}"
+func searchNameHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	c, _ := dao.FindByName(vars["first_name"])
+	index.Render(w, c)
 }
