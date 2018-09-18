@@ -2,13 +2,13 @@ package dao
 
 import (
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/models"
-	"gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 )
 
 type ChildDAO struct {
-	Server		string
+	Server  	string
 	Database	string
 }
 
@@ -18,25 +18,20 @@ const (
 	COLLECTION = "children"
 )
 
-// Connect to the database
-func (c * ChildDAO) Connect()  {
-	session, err := mgo.Dial(c.Server)
+// Establish a connection to database
+func (m *ChildDAO) Connect() {
+	session, err := mgo.Dial(m.Server)
 	if err != nil {
 		log.Fatal(err)
 	}
-	db = session.DB(c.Database)
+	db = session.DB(m.Database)
 }
 
 // Find list of children
 func (c *ChildDAO) FindAll() ([]Child, error) {
-	var children []Child
-	err := db.C(COLLECTION).Find(bson.M{}).All(&children)
-	return children, err
-}
-
-// Find child by email address
-func (c *ChildDAO) FindByEmail(email string) (Child, error) {
-	var child Child
-	err := db.C(COLLECTION).Find(bson.M{"email": child.Email}).One(&child)
+	var child []Child
+	err := db.C(COLLECTION).Find(bson.M{}).All(&child)
 	return child, err
 }
+
+
