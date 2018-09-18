@@ -2,7 +2,7 @@ package dao
 
 import (
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/models"
-	"github.com/globalsign/mgo"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 )
@@ -36,10 +36,7 @@ func (c *ChildDAO) FindAll() ([]Child, error) {
 
 // Find child by email
 func (c *ChildDAO) FindByEmail(email string) (Child, error) {
-	child := Child{}
-	err := db.C(COLLECTION).Find(bson.M{"email": child.Email}).One(&child)
-	if err != nil {
-		log.Printf("FindByEmail : ERROR :d %s\n", err)
-	}
+	var child Child
+	err := db.C(COLLECTION).Find(bson.M{"email": email}).One(&child)
 	return child, err
 }
