@@ -1,29 +1,38 @@
 package main
 
 import (
+	"fmt"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
-	. "github.com/mlabouardy/movies-restapi/config"
+	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 var index *views.View
 var contact *views.View
-
 var dao = ChildDAO{}
-var config = Config{}
 
 const (
 	dev = true
 )
 
-// Parse the configuration file 'config.toml', and establish a connection to DB
-func init() {
-	config.Read()
+func getConfigs() []string {
+	myKeysFile, err := ioutil.ReadFile("configs")
+	if err != nil {
+		fmt.Println("There was a problem with the configs")
+	}
+	return strings.Split(string(myKeysFile), "\n")
+}
 
-	dao.Server = config.Server
-	dao.Database = config.Database
+// Parse the configuration file 'configs.toml', and establish a connection to DB
+func init() {
+	config := getConfigs()
+	server, database := config[0], config[1]
+
+	dao.Server = server
+	dao.Database = database
 	dao.Connect()
 }
 
