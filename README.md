@@ -10,11 +10,8 @@ Edit ```/etc/hosts``` file, and add the following:
 Accessible locally:
 http<nolink>://speech.local/
 
-~Accessible online~ (https temporarily unavailable):
-[~https://speech.briancoveney.com/~](https://speech.briancoveney.com/)
-
 Accessible online:
-[http://speech.briancoveney.com/](http://speech.briancoveney.com/)
+[https://speech.briancoveney.com/](https://speech.briancoveney.com/)
 
 ## Making changes in code / web template, and updating image locally:
 
