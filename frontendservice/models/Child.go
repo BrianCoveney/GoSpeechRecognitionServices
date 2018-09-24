@@ -1,7 +1,5 @@
 package models
 
-import "regexp"
-
 type (
 	Child struct {
 		FirstName  string         `bson:"first_name" json:"first_name"`
@@ -12,16 +10,3 @@ type (
 		Errors     map[string]string
 	}
 )
-
-func (c *Child) Validate() bool {
-
-	c.Errors = make(map[string]string)
-
-	re := regexp.MustCompile(".+@.+\\..+")
-	matched := re.Match([]byte(c.Email))
-	if matched == false {
-		c.Errors["email"] = "Please enter a valid email address"
-	}
-
-	return len(c.Errors) == 0
-}
