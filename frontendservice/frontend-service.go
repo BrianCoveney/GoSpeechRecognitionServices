@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -15,7 +18,7 @@ var contact *views.View
 var dao = ChildDAO{}
 
 const (
-	dev = true
+	dev = false
 )
 
 func readConfigs() []string {
@@ -45,6 +48,25 @@ func main() {
 			Handler: initRoutes(),
 		}
 		server.ListenAndServe()
+	} else {
+
+		certManager := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
+			Cache:      autocert.DirCache("certs"),
+		}
+
+		server := &http.Server{
+			Addr:    ":https",
+			Handler: initRoutes(),
+			TLSConfig: &tls.Config{
+				GetCertificate: certManager.GetCertificate,
+			},
+		}
+
+		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+
+		log.Fatal(server.ListenAndServeTLS("", ""))
 	}
 }
 
@@ -63,7 +85,6 @@ func initRoutes() *mux.Router {
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchHandler).Methods("GET")
 	router.HandleFunc("/{name}", searchNameHandler).Methods("GET")
-
 
 	fs := http.FileServer(http.Dir("./static"))
 	router.PathPrefix("/images/").Handler(fs)
