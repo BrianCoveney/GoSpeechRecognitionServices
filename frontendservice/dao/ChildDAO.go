@@ -13,18 +13,19 @@ type ChildDAO struct {
 }
 
 var db *mgo.Database
+var session *mgo.Session
 
 const (
 	COLLECTION = "children"
 )
 
 // Establish a connection to database
-func (m *ChildDAO) Connect() {
-	session, err := mgo.Dial(m.Server)
+func (c *ChildDAO) Connect() {
+	session, err := mgo.Dial(c.Server)
 	if err != nil {
 		log.Fatal(err)
 	}
-	db = session.DB(m.Database)
+	db = session.DB(c.Database)
 }
 
 // Find list of children
@@ -36,8 +37,8 @@ func (c *ChildDAO) FindAll() ([]Child, error) {
 
 // Find child by email
 func (c *ChildDAO) FindByEmail(email string) (Child, error) {
-	var child Child
-	err := db.C(COLLECTION).Find(bson.M{"email": email}).One(&child)
+	child := Child{}
+	err := db.C(COLLECTION).Find(bson.M{"email": email}).All(&child)
 	return child, err
 }
 

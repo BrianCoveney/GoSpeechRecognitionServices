@@ -10,15 +10,17 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"reflect"
 	"strings"
 )
 
 var index *views.View
 var contact *views.View
+var search *views.View
 var dao = ChildDAO{}
 
 const (
-	dev = false
+	dev = true
 )
 
 func readConfigs() []string {
@@ -80,11 +82,11 @@ func initRoutes() *mux.Router {
 
 	index = views.NewView("bootstrap", "static/index.gohtml")
 	contact = views.NewView("bootstrap", "static/contact.gohtml")
+	search = views.NewView("bootstrap", "static/search.gohtml")
 
 	router.HandleFunc("/", indexHandler).Methods("GET")
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchHandler).Methods("GET")
-	router.HandleFunc("/{name}", searchNameHandler).Methods("GET")
 
 	fs := http.FileServer(http.Dir("./static"))
 	router.PathPrefix("/images/").Handler(fs)
@@ -95,7 +97,13 @@ func initRoutes() *mux.Router {
 
 // Handler "/"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	c, _ := dao.FindAll()
+	defer r.Body.Close()
+	c, err := dao.FindAll()
+	if err != nil{
+		log.Printf("findAll : ERROR :d %s%s\n", err, c)
+	} else {
+		log.Printf("findAll: FOUND :d %s\n", reflect.TypeOf(c))
+	}
 	index.Render(w, c)
 }
 
@@ -107,14 +115,15 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 
 // Handler for path: "/{email}"
 func searchHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	vars := mux.Vars(r)
-	c, _ := dao.FindByEmail(vars["email"])
-	index.Render(w, c)
+	email := vars["email"]
+	c, err := dao.FindByEmail(email)
+	if err != nil{
+		log.Printf("findChildByEmail : ERROR :d %s%s\n", err, c)
+	} else {
+		log.Printf("findChildByEmail : FOUND :d %s\n", reflect.TypeOf(c))
+	}
+	search.Render(w, c)
 }
 
-// Handler for path: "/{email}"
-func searchNameHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	c, _ := dao.FindByName(vars["first_name"])
-	index.Render(w, c)
-}
