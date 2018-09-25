@@ -1,13 +1,13 @@
 {{define "yield"}}
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+<form class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow" action="/search" method="post">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Speech Therapy</a>
-    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" name="email">
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
-            <a class="nav-link" href="#">Sign out</a>
+            <input type="submit" value="Search">
         </li>
     </ul>
-</nav>
+</form>
 <div class="my-4 w-100" width="900" height="100"></div>
 <div class="row">
     <nav class="col-md-2 d-none d-md-block bg-light sidebar">
@@ -26,27 +26,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <span data-feather="shopping-cart"></span>
-                        ...
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <span data-feather="users"></span>
-                        ...
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <span data-feather="bar-chart-2"></span>
-                        ...
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <span data-feather="layers"></span>
-                        ...
+                    <a class="nav-link" href="/search">
+                        <span data-feather="search"></span>
+                        Search
                     </a>
                 </li>
             </ul>

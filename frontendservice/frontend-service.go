@@ -13,6 +13,7 @@ import (
 
 var index *views.View
 var contact *views.View
+var search *views.View
 var dao = ChildDAO{}
 
 const (
@@ -79,10 +80,14 @@ func initRoutes() *mux.Router {
 
 	index = views.NewView("bootstrap", "static/index.gohtml")
 	contact = views.NewView("bootstrap", "static/contact.gohtml")
+	search = views.NewView("bootstrap", "static/search.gohtml")
+
 
 	router.HandleFunc("/", indexHandler).Methods("GET")
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
-	router.HandleFunc("/{email}", searchHandler).Methods("GET")
+	router.HandleFunc("/search", searchFormHandler).Methods("GET", "POST")
+	router.HandleFunc("/{email}", searchURLHandler).Methods("GET")
+
 
 	fs := http.FileServer(http.Dir("./static"))
 	router.PathPrefix("/images/").Handler(fs)
@@ -94,20 +99,36 @@ func initRoutes() *mux.Router {
 // Handler "/"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	c, err := dao.FindAll()
-	if err != nil{
+	if err != nil {
 		log.Printf("indexHandler : ERROR :d %s%v\n", err, c)
 	}
 	index.Render(w, c)
 }
 
 // Handler for path: "/{email}"
-func searchHandler(w http.ResponseWriter, r *http.Request) {
+func searchURLHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	c, err := dao.FindByEmail(vars["email"])
 	if err != nil{
-		log.Printf("searchHandler : ERROR :d %s%v\n", err, c)
+		log.Printf("searchURLHandler : ERROR :d %s%v\n", err, c)
 	}
 	index.Render(w, c)
+}
+
+// Handler for search bar form input
+func searchFormHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	if r.Method == "GET" {
+		search.Render(w, nil)
+	} else {
+		r.ParseForm()
+		email := r.Form["email"][0]
+		c, err := dao.FindByEmail(email)
+		if err != nil{
+			log.Printf("searchFormHandler : ERROR :d %s\n", err)
+		}
+		search.Render(w, c)
+	}
 }
 
 // Handler for "/contact"
