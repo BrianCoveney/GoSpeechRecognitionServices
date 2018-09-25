@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
-	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/models"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -96,7 +95,7 @@ func initRoutes() *mux.Router {
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	c, err := dao.FindAll()
 	if err != nil{
-		log.Printf("findAll : ERROR :d %s%v\n", err, c)
+		log.Printf("indexHandler : ERROR :d %s%v\n", err, c)
 	}
 	index.Render(w, c)
 }
@@ -104,17 +103,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 // Handler for path: "/{email}"
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	email := vars["email"]
-
-	c, err := dao.FindByEmail(email)
+	c, err := dao.FindByEmail(vars["email"])
 	if err != nil{
-		log.Printf("findChildByEmail : ERROR : %s%v\n", err, c)
+		log.Printf("searchHandler : ERROR :d %s%v\n", err, c)
 	}
-
-	var childSlice []Child
-	childSlice = append(childSlice, c)
-
-	index.Render(w, childSlice)
+	index.Render(w, c)
 }
 
 // Handler for "/contact"
