@@ -1,10 +1,12 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,7 +19,7 @@ var search *views.View
 var dao = ChildDAO{}
 
 const (
-	dev = true // Or false for production
+	dev = false // Or false for production
 )
 
 func readConfigs() []string {
@@ -50,23 +52,23 @@ func main() {
 	} else {
 
 		// Uncomment when pushing to production
-		//certManager := autocert.Manager{
-		//	Prompt:     autocert.AcceptTOS,
-		//	HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
-		//	Cache:      autocert.DirCache("certs"),
-		//}
-		//
-		//server := &http.Server{
-		//	Addr:    ":https",
-		//	Handler: initRoutes(),
-		//	TLSConfig: &tls.Config{
-		//		GetCertificate: certManager.GetCertificate,
-		//	},
-		//}
-		//
-		//go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
-		//
-		//log.Fatal(server.ListenAndServeTLS("", ""))
+		certManager := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
+			Cache:      autocert.DirCache("certs"),
+		}
+
+		server := &http.Server{
+			Addr:    ":https",
+			Handler: initRoutes(),
+			TLSConfig: &tls.Config{
+				GetCertificate: certManager.GetCertificate,
+			},
+		}
+
+		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+
+		log.Fatal(server.ListenAndServeTLS("", ""))
 	}
 }
 
