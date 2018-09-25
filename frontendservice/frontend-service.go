@@ -1,26 +1,23 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
+	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/models"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
-	"golang.org/x/crypto/acme/autocert"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"reflect"
 	"strings"
 )
 
 var index *views.View
 var contact *views.View
-var search *views.View
 var dao = ChildDAO{}
 
 const (
-	dev = true
+	dev = true // Or false for production
 )
 
 func readConfigs() []string {
@@ -52,23 +49,24 @@ func main() {
 		server.ListenAndServe()
 	} else {
 
-		certManager := autocert.Manager{
-			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
-			Cache:      autocert.DirCache("certs"),
-		}
-
-		server := &http.Server{
-			Addr:    ":https",
-			Handler: initRoutes(),
-			TLSConfig: &tls.Config{
-				GetCertificate: certManager.GetCertificate,
-			},
-		}
-
-		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
-
-		log.Fatal(server.ListenAndServeTLS("", ""))
+		// Uncomment when pushing to production
+		//certManager := autocert.Manager{
+		//	Prompt:     autocert.AcceptTOS,
+		//	HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
+		//	Cache:      autocert.DirCache("certs"),
+		//}
+		//
+		//server := &http.Server{
+		//	Addr:    ":https",
+		//	Handler: initRoutes(),
+		//	TLSConfig: &tls.Config{
+		//		GetCertificate: certManager.GetCertificate,
+		//	},
+		//}
+		//
+		//go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+		//
+		//log.Fatal(server.ListenAndServeTLS("", ""))
 	}
 }
 
@@ -82,7 +80,6 @@ func initRoutes() *mux.Router {
 
 	index = views.NewView("bootstrap", "static/index.gohtml")
 	contact = views.NewView("bootstrap", "static/contact.gohtml")
-	search = views.NewView("bootstrap", "static/search.gohtml")
 
 	router.HandleFunc("/", indexHandler).Methods("GET")
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
@@ -97,14 +94,27 @@ func initRoutes() *mux.Router {
 
 // Handler "/"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	c, err := dao.FindAll()
 	if err != nil{
-		log.Printf("findAll : ERROR :d %s%s\n", err, c)
-	} else {
-		log.Printf("findAll: FOUND :d %s\n", reflect.TypeOf(c))
+		log.Printf("findAll : ERROR :d %s%v\n", err, c)
 	}
 	index.Render(w, c)
+}
+
+// Handler for path: "/{email}"
+func searchHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	email := vars["email"]
+
+	c, err := dao.FindByEmail(email)
+	if err != nil{
+		log.Printf("findChildByEmail : ERROR : %s%v\n", err, c)
+	}
+
+	var childSlice []Child
+	childSlice = append(childSlice, c)
+
+	index.Render(w, childSlice)
 }
 
 // Handler for "/contact"
@@ -113,17 +123,5 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	contact.Render(w, c)
 }
 
-// Handler for path: "/{email}"
-func searchHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	email := vars["email"]
-	c, err := dao.FindByEmail(email)
-	if err != nil{
-		log.Printf("findChildByEmail : ERROR :d %s%s\n", err, c)
-	} else {
-		log.Printf("findChildByEmail : FOUND :d %s\n", reflect.TypeOf(c))
-	}
-	search.Render(w, c)
-}
+
 

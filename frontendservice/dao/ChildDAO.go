@@ -32,20 +32,19 @@ func (c *ChildDAO) Connect() {
 func (c *ChildDAO) FindAll() ([]Child, error) {
 	var child []Child
 	err := db.C(COLLECTION).Find(bson.M{}).All(&child)
+	if err != nil{
+		log.Printf("FindAll : ERROR : %s%s\n", err, c)
+	}
 	return child, err
 }
 
 // Find child by email
 func (c *ChildDAO) FindByEmail(email string) (Child, error) {
-	child := Child{}
+	var child Child
 	err := db.C(COLLECTION).Find(bson.M{"email": email}).All(&child)
+	if err != nil{
+		log.Printf("FindByEmail : ERROR : %s%s\n", err, c)
+	}
 	return child, err
 }
 
-// Find child by name
-func (c *ChildDAO) FindByName(name string) (Child, error) {
-	var child Child
-	err := db.C(COLLECTION).Find(bson.M{"first_name": name}).One(&child)
-	log.Print("CHILD", child)
-	return child, err
-}
