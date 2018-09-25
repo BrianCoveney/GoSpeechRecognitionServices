@@ -7,6 +7,5 @@ type (
 		Email      string         `bsodocker n:"email" json:"email"`
 		Word       string         `bson:"word" json:"word"`
 		Words      map[string]int `bson:"map_of_gliding_words" json:"map_of_gliding_words"`
-		Errors     map[string]string
 	}
 )
