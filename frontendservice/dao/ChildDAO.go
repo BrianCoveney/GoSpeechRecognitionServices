@@ -13,7 +13,6 @@ type ChildDAO struct {
 }
 
 var db *mgo.Database
-var session *mgo.Session
 
 const (
 	COLLECTION = "children"
