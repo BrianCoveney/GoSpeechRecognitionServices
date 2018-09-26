@@ -41,3 +41,9 @@ func (c *ChildDAO) FindByEmail(email string) ([]Child, error) {
 	return child, err
 }
 
+func (c *ChildDAO) RemoveChild(child Child) error {
+	err := db.C(COLLECTION).Remove(&child)
+	return err
+}
+
+

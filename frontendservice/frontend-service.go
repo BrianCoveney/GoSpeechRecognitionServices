@@ -1,12 +1,11 @@
 package main
 
 import (
-	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
-	"golang.org/x/crypto/acme/autocert"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -19,7 +18,7 @@ var search *views.View
 var dao = ChildDAO{}
 
 const (
-	dev = false // Or false for production
+	dev = true // Or false for production
 )
 
 func readConfigs() []string {
@@ -52,44 +51,38 @@ func main() {
 	} else {
 
 		// Uncomment when pushing to production
-		certManager := autocert.Manager{
-			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
-			Cache:      autocert.DirCache("certs"),
-		}
-
-		server := &http.Server{
-			Addr:    ":https",
-			Handler: initRoutes(),
-			TLSConfig: &tls.Config{
-				GetCertificate: certManager.GetCertificate,
-			},
-		}
-
-		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
-
-		log.Fatal(server.ListenAndServeTLS("", ""))
+		//certManager := autocert.Manager{
+		//	Prompt:     autocert.AcceptTOS,
+		//	HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
+		//	Cache:      autocert.DirCache("certs"),
+		//}
+		//
+		//server := &http.Server{
+		//	Addr:    ":https",
+		//	Handler: initRoutes(),
+		//	TLSConfig: &tls.Config{
+		//		GetCertificate: certManager.GetCertificate,
+		//	},
+		//}
+		//
+		//go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+		//
+		//log.Fatal(server.ListenAndServeTLS("", ""))
 	}
 }
 
-// initRoutes() method is handler.
-// Here we specify that http://<ip_address>/ is handled by the findAllChildren() method, and
-// http://<ip_address>/<name@some_email.com> is handled by the findChildByEmail() method.
 func initRoutes() *mux.Router {
-	// We create a router that we can pass the request through so that the vars will be added to the context.
-	// router.HandleFunc register URL paths and their handlers.
 	router := mux.NewRouter()
 
 	index = views.NewView("bootstrap", "static/index.gohtml")
 	contact = views.NewView("bootstrap", "static/contact.gohtml")
 	search = views.NewView("bootstrap", "static/search.gohtml")
 
-
 	router.HandleFunc("/", indexHandler).Methods("GET")
 	router.HandleFunc("/contact", contactHandler).Methods("GET")
 	router.HandleFunc("/search", searchFormHandler).Methods("GET", "POST")
+	router.HandleFunc("/children", searchAllHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchURLHandler).Methods("GET")
-
 
 	fs := http.FileServer(http.Dir("./static"))
 	router.PathPrefix("/images/").Handler(fs)
@@ -98,21 +91,15 @@ func initRoutes() *mux.Router {
 	return router
 }
 
+/*
+ * html template endpoints
+ *
+*/
 // Handler "/"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	c, err := dao.FindAll()
 	if err != nil {
 		log.Printf("indexHandler : ERROR :d %s%v\n", err, c)
-	}
-	index.Render(w, c)
-}
-
-// Handler for path: "/{email}"
-func searchURLHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	c, err := dao.FindByEmail(vars["email"])
-	if err != nil{
-		log.Printf("searchURLHandler : ERROR :d %s%v\n", err, c)
 	}
 	index.Render(w, c)
 }
@@ -139,5 +126,41 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	contact.Render(w, c)
 }
 
+/*
+ * JSON Payload endpoints
+ *
+*/
+// Handler for path: "/{email}"
+func searchURLHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	c, err := dao.FindByEmail(vars["email"])
+	if err != nil || c == nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid Child Email")
+		return
+	}
+	respondWithJSON(w, http.StatusOK, c)
+}
+
+// Handler for path: "/children"
+func searchAllHandler(w http.ResponseWriter, r *http.Request) {
+	c, err := dao.FindAll()
+	if err != nil || c == nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, c)
+}
+
+//JSON helper methods
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	response, _ := json.Marshal(payload)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(response)
+}
+
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	respondWithJSON(w, code, map[string]string{"error": message})
+}
 
 
