@@ -27,23 +27,32 @@ func (c *ChildDAO) Connect() {
 	db = session.DB(c.Database)
 }
 
-// Find list of children
+/*
+ * CRUD methods
+ *
+*/
+func (c *ChildDAO) CreateChild(child Child) error {
+	err := db.C(COLLECTION).Insert(&child)
+	return err
+}
+
 func (c *ChildDAO) FindAll() ([]Child, error) {
 	var child []Child
 	err := db.C(COLLECTION).Find(bson.M{}).All(&child)
 	return child, err
 }
 
-// Find child by email
 func (c *ChildDAO) FindByEmail(email string) (Child, error) {
 	var child Child
 	err := db.C(COLLECTION).Find(bson.M{"email": email}).One(&child)
 	return child, err
+}
+func (c *ChildDAO) UpdateChild(child Child) error {
+	err := db.C(COLLECTION).Update(child.Email, &child)
+	return err
 }
 
 func (c *ChildDAO) RemoveChild(child Child) error {
 	err := db.C(COLLECTION).Remove(&child)
 	return err
 }
-
-
