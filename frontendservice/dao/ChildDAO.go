@@ -35,13 +35,14 @@ func (c *ChildDAO) FindAll() ([]Child, error) {
 }
 
 // Find child by email
-func (c *ChildDAO) FindByEmail(email string) ([]Child, error) {
-	var child []Child
-	err := db.C(COLLECTION).Find(bson.M{"email": email}).All(&child)
+func (c *ChildDAO) FindByEmail(email string) (Child, error) {
+	var child Child
+	err := db.C(COLLECTION).Find(bson.M{"email": email}).One(&child)
 	return child, err
 }
 
-func (c *ChildDAO) RemoveChild(child Child) error {
+func (c *ChildDAO) RemoveChild(Child) error {
+	var child []Child
 	err := db.C(COLLECTION).Remove(&child)
 	return err
 }
