@@ -119,7 +119,9 @@ func searchFormHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil{
 			log.Printf("searchFormHandler : ERROR :d %s\n", err)
 		}
-		search.Render(w, c)
+		var childSlice []Child
+		childSlice = append(childSlice, c)
+		search.Render(w, childSlice)
 	}
 }
 
@@ -141,16 +143,15 @@ func searchURLHandler(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Invalid Child Email")
 		return
 	}
-	//var childSlice []Child
-	//childSlice = append(childSlice, c)
 	respondWithJSON(w, http.StatusOK, c)
 }
 
 // Handler for path: "/children"
 func searchAllHandler(w http.ResponseWriter, r *http.Request) {
-	c, err := getChild(w, r)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid Child Email")
+	c, err := dao.FindAll()
+	if err != nil || c == nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 	respondWithJSON(w, http.StatusOK, c)
 }
