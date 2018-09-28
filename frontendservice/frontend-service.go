@@ -8,6 +8,7 @@ import (
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"labix.org/v2/mgo/bson"
 	"log"
 	"net/http"
 	"strings"
@@ -85,7 +86,8 @@ func initRoutes() *mux.Router {
 	router.HandleFunc("/children", searchAllHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchURLHandler).Methods("GET")
 	router.HandleFunc("/{email}", removeChildHandler).Methods("DELETE")
-
+	router.HandleFunc("/{email}", updateChildHandler).Methods("PUT")
+	router.HandleFunc("/{first_name}", createChildHandler).Methods("POST")
 
 	fs := http.FileServer(http.Dir("./static"))
 	router.PathPrefix("/images/").Handler(fs)
@@ -135,6 +137,20 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
  * JSON Payload endpoints
  *
 */
+func createChildHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var child Child
+	vars := mux.Vars(r)
+	child.ID = bson.NewObjectId()
+	child.FirstName = vars["first_name"]
+	er := dao.CreateChild(child)
+	if er != nil {
+		respondWithError(w, http.StatusInternalServerError, "Er: " + er.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusCreated, child)
+}
+
 // Handler for path: "/{email}"
 func searchURLHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -156,19 +172,25 @@ func searchAllHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, c)
 }
 
-func removeChildHandler(w http.ResponseWriter, r *http.Request) {
+func updateChildHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	c, er := getChild(w, r)
-	if er != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid Child Email")
-	}
-	err := dao.RemoveChild(c)
+	c := getChild(w, r)
+	err := dao.UpdateChild(c)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 	}
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
 
+func removeChildHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	c := getChild(w, r)
+	err := dao.RemoveChild(c)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+	}
+	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}
 
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
@@ -181,10 +203,13 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
 }
 
-func getChild(w http.ResponseWriter, r *http.Request) (Child, error) {
+func getChild(w http.ResponseWriter, r *http.Request) Child {
 	vars := mux.Vars(r)
 	child, err := dao.FindByEmail(vars["email"])
-	return child, err
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid Child Email")
+	}
+	return child
 }
 
 
