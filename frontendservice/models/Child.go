@@ -1,7 +1,10 @@
 package models
 
+import "labix.org/v2/mgo/bson"
+
 type (
 	Child struct {
+		ID         bson.ObjectId  `bson:"_id" json:"id"`
 		FirstName  string         `bson:"first_name" json:"first_name"`
 		SecondName string         `bson:"second_name" json:"second_name"`
 		Email      string         `bson:"email" json:"email"`
