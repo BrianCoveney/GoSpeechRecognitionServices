@@ -2,8 +2,8 @@ package dao
 
 import (
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/models"
-	"labix.org/v2/mgo"
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 )
 

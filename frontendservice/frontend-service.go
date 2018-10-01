@@ -7,8 +7,8 @@ import (
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/models"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
+	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
-	"labix.org/v2/mgo/bson"
 	"log"
 	"net/http"
 	"strings"
@@ -177,7 +177,7 @@ func searchAllHandler(w http.ResponseWriter, r *http.Request) {
 
 func updateChildHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	c := getChild(w, r)
+	c := getChildByField(w, r, "email")
 	err := dao.UpdateChild(c)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
@@ -187,7 +187,7 @@ func updateChildHandler(w http.ResponseWriter, r *http.Request) {
 
 func removeChildHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	c := getChild(w, r)
+	c := getChildByField(w, r, "name")
 	err := dao.RemoveChild(c)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
@@ -206,9 +206,9 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
 }
 
-func getChild(w http.ResponseWriter, r *http.Request) Child {
+func getChildByField(w http.ResponseWriter, r *http.Request, field string) Child {
 	vars := mux.Vars(r)
-	child, err := dao.FindByEmail(vars["first_name"])
+	child, err := dao.FindByEmail(vars[field])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid Child Email")
 	}
