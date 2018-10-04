@@ -1,12 +1,14 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/dao"
 	. "github.com/BrianCoveney/GoSpeechRecognitionServices/frontendservice/models"
 	"github.com/BrianCoveney/GoSpeechRecognitionServices/views"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"log"
@@ -20,7 +22,7 @@ var search *views.View
 var dao = ChildDAO{}
 
 const (
-	dev = true // Or false for production
+	dev = false // Or false for production
 )
 
 func readConfigs() []string {
@@ -53,23 +55,23 @@ func main() {
 	} else {
 
 		// Uncomment when pushing to production
-		// certManager := autocert.Manager{
-		// 	Prompt:     autocert.AcceptTOS,
-		// 	HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
-		// 	Cache:      autocert.DirCache("certs"),
-		// }
+		certManager := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist("speech.briancoveney.com"),
+			Cache:      autocert.DirCache("certs"),
+		}
 
-		// server := &http.Server{
-		// 	Addr:    ":https",
-		// 	Handler: initRoutes(),
-		// 	TLSConfig: &tls.Config{
-		// 		GetCertificate: certManager.GetCertificate,
-		// 	},
-		// }
+		server := &http.Server{
+			Addr:    ":https",
+			Handler: initRoutes(),
+			TLSConfig: &tls.Config{
+				GetCertificate: certManager.GetCertificate,
+			},
+		}
 
-		// go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+		go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
 
-		// log.Fatal(server.ListenAndServeTLS("", ""))
+		log.Fatal(server.ListenAndServeTLS("", ""))
 	}
 }
 
@@ -86,7 +88,7 @@ func initRoutes() *mux.Router {
 	router.HandleFunc("/children", searchAllHandler).Methods("GET")
 	router.HandleFunc("/{email}", searchURLHandler).Methods("GET")
 	router.HandleFunc("/{email}", removeChildHandler).Methods("DELETE")
-	router.HandleFunc("/{email}", updateChildHandler).Methods("PUT")
+	router.HandleFunc("/{email}/{first_name}", updateChildHandler).Methods("PUT")
 	router.HandleFunc("/child/{first_name}/{second_name}/{email}", createChildHandler).Methods("POST")
 
 	fs := http.FileServer(http.Dir("./static"))
@@ -177,20 +179,26 @@ func searchAllHandler(w http.ResponseWriter, r *http.Request) {
 
 func updateChildHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	c := getChildByField(w, r, "email")
-	err := dao.UpdateChild(c)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, err.Error())
+	vars := mux.Vars(r)
+	email := vars["email"]
+	name := vars["first_name"]
+	er := dao.UpdateChild(email, name)
+	if er != nil {
+		respondWithError(w, http.StatusBadRequest, er.Error())
 	}
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
 
 func removeChildHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	c := getChildByField(w, r, "name")
-	err := dao.RemoveChild(c)
+	vars := mux.Vars(r)
+	c, err := dao.FindByEmail(vars["email"])
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, err.Error())
+		respondWithError(w, http.StatusBadRequest, "Invalid Child Email")
+	}
+	er := dao.RemoveChild(c)
+	if er != nil {
+		respondWithError(w, http.StatusBadRequest, er.Error())
 	}
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
@@ -206,13 +214,5 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
 }
 
-func getChildByField(w http.ResponseWriter, r *http.Request, field string) Child {
-	vars := mux.Vars(r)
-	child, err := dao.FindByEmail(vars[field])
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid Child Email")
-	}
-	return child
-}
 
 
