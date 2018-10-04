@@ -48,8 +48,10 @@ func (c *ChildDAO) FindByEmail(email string) (Child, error) {
 	return child, err
 }
 
-func (c *ChildDAO) UpdateChild(child Child) error {
-	err := db.C(COLLECTION).Update(child, &child)
+func (c *ChildDAO) UpdateChild(email string, name string) error {
+	query := bson.M{"email": email}
+	update := bson.M{"&set" : bson.M{"first_name": name}}
+	err := db.C(COLLECTION).Update(query, update)
 	return err
 }
 
