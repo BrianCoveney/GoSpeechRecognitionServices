@@ -41,7 +41,7 @@ Start the containers in the background and leave them running:
 Set up Minikube on local machine by following the docs:  
 [https://kubernetes.io/docs/setup/minikube/](https://kubernetes.io/docs/setup/minikube/)
 
-Start running Minikube (disable and start if it hangs):  
+Start running Minikube (delete and start if it hangs):  
 ``` minikube delete && minikube start ```
 
 Use the Kompose conversion tool which converts our ``` docker-compose.yaml ``` to Kubernetes ready resources:  
