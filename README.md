@@ -38,7 +38,16 @@ Start the containers in the background and leave them running:
 
 ## Running Kubernetes Locally via Minikube
 
-Run the following command:  
+Set up Minikube on local machine by following the docs:  
+[https://kubernetes.io/docs/setup/minikube/](https://kubernetes.io/docs/setup/minikube/)
+
+Start running Minikube (disable and start if it hangs):  
+``` minikube delete && minikube start ```
+
+Use the Kompose conversion tool which converts our ``` docker-compose.yaml ``` to Kubernetes ready resources:  
+[https://github.com/kubernetes/kompose](https://github.com/kubernetes/kompose)
+
+Run the following script which creates our deployment using ```kubectl create -f``` with our ```.yaml``` files:  
 ``` $./deploy.sh ```
 
 Find the frontend service with the exposed port of 30008:  
