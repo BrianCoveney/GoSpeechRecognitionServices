@@ -53,9 +53,12 @@ Run the following script which creates our deployment using ```kubectl create -f
 Find the frontend service with the exposed port of 30008:  
 ``` $minikube service list ```
 
-e.g:  
+The Minikube VM is exposed to the host system via a host-only IP address. Our ``` frontend-service.yaml ``` includes a ``` NodePort ``` which provides access to the website locally.   
 
-| default | frontend | http<span></span>://192.168.99.100:30008 |
+![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/terminal_1.png)
+
+We can then use [Postman](https://www.getpostman.com/) to test our API endpoints. Here we create a child using POST:     
+![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/postman_1.png)
 
 Update image:    
 ``` kubectl set image deployment frontend frontend=bricov/speech_frontend:latest ```
