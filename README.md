@@ -69,4 +69,34 @@ Open in browser:
 Updating image after a change:    
 ``` kubectl set image deployment frontend frontend=bricov/speech_frontend:latest ```
 
+## Running Kubernetes on Google Cloud Platform:  
+
+
+Set a default project:  
+``` gcloud config set project [PROJECT_ID] ```
+
+Set a default compute zone:  
+``` gcloud config set compute/zone [COMPUTE_ZONE] ```
+
+Creat a GKE cluster:  
+``` gcloud container clusters create [CLUSTER_NAME] ``` 
+
+Authentication credentials for the cluster:  
+``` gcloud container clusters get-credentials [CLUSTER_NAME] ``` 
+
+Create the Deployment:  
+``` kubectl create -f mongodb-repository-service.yaml,mongodb-repository-deployment.yaml,frontend-service.yaml,frontend-deployment.yaml ```
+
+Exposing the Deployment to the internet. Note: Use NodePort localy for Minikube(local). Use LoadBalancer for GCP:  
+``` kubectl expose deployment frontend --type=LoadBalancer --name=frontend-service ```
+
+Inspecting the application:    
+``` kubectl get service ```
+![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/terminal_2.png)
+
+View the application:   
+``` http://[EXTERNAL_IP]/ ```
+
+We can then use [Postman](https://www.getpostman.com/) to test our API endpoints. Here we Update a child using PUT:     
+![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/postman_2.png)
 
