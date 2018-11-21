@@ -98,5 +98,5 @@ View the application:
 ``` http://[EXTERNAL_IP]/ ```
 
 We can then use [Postman](https://www.getpostman.com/) to test our API endpoints. Here we Update a child using PUT:     
-![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/postman_2.png)
+![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/postman_1.png)
 
