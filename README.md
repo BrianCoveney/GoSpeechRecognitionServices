@@ -100,3 +100,6 @@ View the application:
 We can then use [Postman](https://www.getpostman.com/) to test our API endpoints. Here we Update a child using PUT:     
 ![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/postman_2.png)
 
+This is a Functional Test of the API. We make a GET request and validate the resonse by writing JS tests:     
+![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/postman_3.png)
+
