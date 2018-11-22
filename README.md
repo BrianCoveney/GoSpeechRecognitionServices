@@ -87,7 +87,7 @@ Authentication credentials for the cluster:
 Create the Deployment:  
 ``` kubectl create -f mongodb-repository-service.yaml,mongodb-repository-deployment.yaml,frontend-service.yaml,frontend-deployment.yaml ```
 
-Exposing the Deployment to the internet. Note: Use NodePort localy for Minikube(local). Use LoadBalancer for GCP:  
+Exposing the Deployment to the internet. Note: Use NodePort for Minikube(local). Use LoadBalancer for GCP:  
 ``` kubectl expose deployment frontend --type=LoadBalancer --name=frontend-service ```
 
 Inspecting the application:    
