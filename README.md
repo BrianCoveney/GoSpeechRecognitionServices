@@ -103,3 +103,14 @@ We can then use [Postman](https://www.getpostman.com/) to test our API endpoints
 This is a Functional Test of the API. We make a GET request and validate the resonse by writing JS tests in Postman:     
 ![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/postman_3.png)
 
+## Cleaning Up
+
+Login:  
+```gcloud compute os-login describe-profile```
+
+Updates a kubeconfig file with appropriate credentials:  
+``` gcloud container clusters get-credentials [CLUSTER_NAME]```
+
+Delete services and clusters:   
+``` kubectl delete service [SERVICE_NAME] ```   
+``` gcloud container clusters delete [CLUSTER_NAME] ```
