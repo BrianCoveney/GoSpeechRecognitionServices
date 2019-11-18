@@ -42,7 +42,7 @@ Set up Minikube on local machine by following the docs:
 [https://kubernetes.io/docs/setup/minikube/](https://kubernetes.io/docs/setup/minikube/)
 
 Start running Minikube (delete and start if it hangs):  
-``` minikube delete && minikube start ```
+```  minikube start -p brian-cluster --vm-driver=virtualbox  ```
 
 Use the Kompose conversion tool which converts our ``` docker-compose.yaml ``` to Kubernetes ready resources:  
 [https://github.com/kubernetes/kompose](https://github.com/kubernetes/kompose)
@@ -50,10 +50,10 @@ Use the Kompose conversion tool which converts our ``` docker-compose.yaml ``` t
 Run the following script which creates our deployment using ```kubectl create -f``` with our ```.yaml``` files:  
 ``` $./deploy.sh ```
 
-Find the frontend service with the exposed port of 30008:  
-``` $minikube service list ```
+Find the minikube ip for the cluster:  
+``` minikube -p brian-cluster ip ```
 
-The Minikube VM is exposed to the host system via a host-only IP address. Our ``` frontend-service.yaml ``` includes a ``` NodePort ``` which provides access to the website locally.   
+The Minikube VM is exposed to the host system via a host-only IP address. Our ``` frontend-service.yaml ``` includes a ``` NodePort ``` set as `30008`, which provides access to the website locally.   
 
 ![alt text](https://github.com/BrianCoveney/SpeechRecognition-Golang-Frontend/blob/master/images/terminal_1.png)
 

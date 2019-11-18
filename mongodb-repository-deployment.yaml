@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -6,7 +6,9 @@ metadata:
   name: mongodb-repository
 spec:
   replicas: 1
-  strategy: {}
+  selector:
+    matchLabels:
+      app: mongodb-repository
   template:
     metadata:
       labels:

@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -6,7 +6,9 @@ metadata:
   name: frontend
 spec:
   replicas: 1
-  strategy: {}
+  selector:
+    matchLabels:
+      app: frontend
   template:
     metadata:
       labels:
@@ -17,9 +19,9 @@ spec:
         - name: DATASTORE_ADDR
           value: datastore:27017
         image: bricov/speech_frontend
+        resources: {}
         name: frontend
         ports:
         - containerPort: 80
-        resources: {}
       restartPolicy: Always
 status: {}
